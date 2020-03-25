@@ -31,6 +31,7 @@ $sendMessage->chat_id = $update->message->chat->id;
 $sendMessage->parse_mode = 'HTML';
 
 $command = getCommand($update);
+$params = getParams($update);
 
 $foldingUser = $update->message->from->username ?? 'unknown';
 $foldingTeam = '<i>unknown</i>';
@@ -57,6 +58,10 @@ switch ($command) {
 		$sendMessage->text .= PHP_EOL;
 		break;
 	case '/stats':
+		if (isset($params[0])) {
+			// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
+			$foldingUser = htmlentities($params[0]);
+		}
 		$chatAction = new SendChatAction();
 		$chatAction->chat_id = $sendMessage->chat_id;
 		$chatAction->action = 'typing';
@@ -66,9 +71,9 @@ switch ($command) {
 		$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 		$stats = loadUserStats($foldingUser);
 		if ($stats === null) {
-			$sendMessage->text .= sprintf('%s Error: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
 		} else if (isset($stats->error)) { // @TODO if error occured (for example not found, it has 404, so wrapper returns null
-			$sendMessage->text .= sprintf('%s Folding@home API error: "%s"', Icons::ERROR, $stats->error) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
 		} else {
 			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
@@ -141,6 +146,13 @@ function getCommand($update): ?string {
 		}
 	}
 	return null;
+}
+
+function getParams($update): array {
+	$text = $update->message->text;
+	$params = explode(' ', $text);
+	array_shift($params);
+	return $params;
 }
 
 function isPM($update): bool {
