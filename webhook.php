@@ -59,8 +59,13 @@ switch ($command) {
 		break;
 	case '/stats':
 		if (isset($params[0])) {
-			// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
-			$foldingUser = htmlentities($params[0]);
+			// parameter is URL with donor
+			if (mb_strpos($params[0], FOLDING_STATS_URL . '/donor/') === 0) {
+				$foldingUser = str_replace(FOLDING_STATS_URL . '/donor/', '', $params[0]);
+			} else {
+				// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
+				$foldingUser = htmlentities($params[0]);
+			}
 		}
 		$chatAction = new SendChatAction();
 		$chatAction->chat_id = $sendMessage->chat_id;
@@ -68,14 +73,16 @@ switch ($command) {
 		$tgLog->performApiRequest($chatAction);
 		$loop->run();
 
-		$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 		$stats = loadUserStats($foldingUser);
-		if ($stats === null) {
-			$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
-		} else if (isset($stats->error)) { // @TODO if error occured (for example not found, it has 404, so wrapper returns null
-			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
-		} else {
+		if ($stats === null) { // Request error
 			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+		} else if (isset($stats->error)) { // API error
+			// @TODO if error occured (for example not found, it has 404, so wrapper returns null
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
+		} else { // Success!
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
 					Icons::STATS_CREDIT,
 					Utils::numberFormat($stats->credit),
