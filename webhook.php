@@ -35,7 +35,7 @@ $params = getParams($update);
 
 $foldingUser = $update->message->from->username ?? 'unknown';
 $foldingTeam = '<i>unknown</i>';
-$foldingTeamId = null;
+$foldingTeamId = 239186; // @TODO remove this temporary set team
 
 $statsUrl = 'https://stats.foldingathome.org';
 
@@ -60,8 +60,8 @@ switch ($command) {
 	case '/stats':
 		if (isset($params[0])) {
 			// parameter is URL with donor
-			if (mb_strpos($params[0], FOLDING_STATS_URL . '/donor/') === 0) {
-				$foldingUser = str_replace(FOLDING_STATS_URL . '/donor/', '', $params[0]);
+			if (mb_strpos($params[0], getUserUrl('')) === 0) {
+				$foldingUser = htmlentities(str_replace(getUserUrl(''), '', $params[0]));
 			} else {
 				// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
 				$foldingUser = htmlentities($params[0]);
@@ -90,10 +90,76 @@ switch ($command) {
 					Utils::numberFormat($stats->rank),
 					Utils::numberFormat($stats->total_users)
 				) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s <b>WUs</b>: %d (<a href="%s">certificate</a>)', Icons::STATS_WU, $stats->wus, $stats->wus_cert) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>WUs</b>: %s (<a href="%s">certificate</a>)',
+					Icons::STATS_WU,
+					Utils::numberFormat($stats->wus),
+					$stats->wus_cert
+				) . PHP_EOL;
+//		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
+			$sendMessage->text .= sprintf('%s <b>Last WU done</b>: %s',
+					Icons::STATS_WU_LAST_DONE, $stats->last
+				) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s‍ <b>Active client(s)</b>: %s / %s (last week / 50 days)',
+					Icons::STATS_ACTIVE_CLIENTS,
+					Utils::numberFormat($stats->active_7),
+					Utils::numberFormat($stats->active_50)
+				) . PHP_EOL;
+		}
+		break;
+	case '/team':
+		if (isset($params[0])) {
+			// parameter is URL with donor
+			if (mb_strpos($params[0], getTeamUrl('')) === 0) {
+				$foldingTeamIdParam = str_replace(getTeamUrl(''), '', $params[0]);
+				if (is_numeric($foldingTeamIdParam)) {
+					$foldingTeamId = $foldingTeamIdParam;
+				}
+			} else {
+				if (is_numeric($params[0])) {
+					$foldingTeamId = $params[0];
+				}
+			}
+		}
+		$chatAction = new SendChatAction();
+		$chatAction->chat_id = $sendMessage->chat_id;
+		$chatAction->action = 'typing';
+		$tgLog->performApiRequest($chatAction);
+		$loop->run();
+
+		$stats = loadTeamStats($foldingTeamId);
+		if ($stats === null) { // Request error
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+		} else if (isset($stats->error)) { // API error
+			// @TODO if error occured (for example not found, it has 404, so wrapper returns null
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
+		} else { // Success!
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', getTeamUrl($foldingTeamId), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
+					Icons::STATS_CREDIT,
+					Utils::numberFormat($stats->credit),
+					Icons::STATS_CREDIT_RANK,
+					Utils::numberFormat($stats->rank),
+					Utils::numberFormat($stats->total_teams),
+					Icons::AVERAGE,
+					Utils::numberFormat($stats->credit / count($stats->donors))
+				) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>WUs</b>: %s (%s %s / user) <a href="%s">Certificate</a>',
+					Icons::STATS_WU,
+					Utils::numberFormat($stats->wus),
+					Icons::AVERAGE,
+					Utils::numberFormat($stats->wus / count($stats->donors), 2),
+					$stats->wus_cert
+				) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
 			$sendMessage->text .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s‍ <b>Active client(s)</b>: %d / %d (last week / 50 days)', Icons::STATS_ACTIVE_CLIENTS, $stats->active_7, $stats->active_50) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s‍ <b>Active client(s)</b>: %s (last 50 days, %s %s / user)',
+					Icons::STATS_ACTIVE_CLIENTS,
+					Utils::numberFormat($stats->active_50),
+					Icons::AVERAGE,
+					Utils::numberFormat($stats->active_50 / count($stats->donors), 2)
+				) . PHP_EOL;
 		}
 		break;
 	case null: // message without command
@@ -124,7 +190,7 @@ function loadUserStats($user) {
 	return Utils::requestJson(getUserUrl($user, true));
 }
 
-function loadTeamStats(int $teamId) {
+function loadTeamStats($teamId) {
 	return Utils::requestJson(getTeamUrl($teamId, true));
 }
 
@@ -137,7 +203,7 @@ function getUserUrl(string $user, bool $api = false): string {
 	return $baseUrl;
 }
 
-function getTeamUrl(int $teamId, bool $api = false): string {
+function getTeamUrl($teamId, bool $api = false): string {
 	$baseUrl = FOLDING_STATS_URL;
 	if ($api === true) {
 		$baseUrl .= '/api';

@@ -8,7 +8,7 @@ class Utils
 		return $dtF->diff($dtT)->format('%a days, %h hours, %i minutes and %s seconds');
 	}
 
-	static function numberFormat(int $number, int $decimals = 0): string {
+	static function numberFormat(float $number, int $decimals = 0): string {
 		return \number_format($number, $decimals, '.', ' ');
 	}
 

@@ -2,6 +2,8 @@
 
 class Icons
 {
+	const AVERAGE = "\u{2300}"; // https://www.fileformat.info/info/unicode/char/2300/index.htm
+
 	const FOLDING = "\u{1F39B}"; // https://emojipedia.org/control-knobs/
 	const ERROR = "\u{26D4}"; // https://emojipedia.org/no-entry/
 	const USER = "\u{1F44D}"; // https://emojipedia.org/thumbs-up/
