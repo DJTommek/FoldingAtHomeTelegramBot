@@ -27,7 +27,9 @@ DEFINE('TIME_FORMAT', 'H:i:s');
 // @TODO in case of error, show some info about renaming config.local.example.php to config.local.php
 require_once __DIR__ . '/../data/config.local.php';
 
-include 'functions.php';
-include 'Logs.php';
-include 'Utils.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+include __DIR__ . '/functions.php';
+include __DIR__ . '/Logs.php';
+include __DIR__ . '/Utils.php';
+include __DIR__ . '/Icons.php';
 Logs::write('Request: ' . ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] . ' - ' : '') . $_SERVER['REQUEST_URI']);

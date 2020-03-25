@@ -2,9 +2,9 @@
 declare(strict_types=1);
 echo '<pre>';
 
-require_once 'src/config.php';
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/src/config.php';
 
+use unreal4u\TelegramAPI\Telegram\Methods\SendChatAction;
 use \unreal4u\TelegramAPI\Telegram\Types\Update;
 use \React\EventLoop\Factory;
 use \unreal4u\TelegramAPI\HttpClientRequestHandler;
@@ -43,31 +43,46 @@ switch ($command) {
 		$sendMessage->text = 'Welcome to ' . TELEGRAM_BOT_NICK . '!';
 		break;
 	case '/help':
-		$sendMessage->text = sprintf('🎛 Welcome to %s!', TELEGRAM_BOT_NICK) . PHP_EOL;
+		$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
 		$sendMessage->text .= sprintf(' /help - this text') . PHP_EOL;
-		$sendMessage->text .= sprintf('👍 <b>User commands</b>:') . PHP_EOL;;
+		$sendMessage->text .= sprintf(Icons::USER . ' <b>User commands</b>:') . PHP_EOL;
 		$sendMessage->text .= sprintf(' /stats - load your personal statistics (user <a href="%s">%s</a>)',
 				(getUserUrl($foldingUser)), $foldingUser) . PHP_EOL;
 		$sendMessage->text .= sprintf(' /stats &lt;nick or ID&gt; - load specific user statistics') . PHP_EOL;
 		$sendMessage->text .= sprintf(' /setNick &lt;nick or ID or URL&gt; - set your nick on folding website if different than your Telegram name.') . PHP_EOL;
-		$sendMessage->text .= sprintf('🖐 <b>Team commands</b>:') . PHP_EOL;;
+		$sendMessage->text .= sprintf(Icons::TEAM . ' <b>Team commands</b>:') . PHP_EOL;
 		$sendMessage->text .= sprintf(' /team - load your team statistics. Currently set to <a href="%s">%s</a>',
 				(getTeamUrl($foldingTeamId ?? 0)), $foldingTeam) . PHP_EOL;
 		$sendMessage->text .= sprintf(' /team &lt;team ID or URL&gt; - load specific team statistics') . PHP_EOL;
 		$sendMessage->text .= PHP_EOL;
 		break;
 	case '/stats':
-		$stats = loadUserStats($foldingUser);
+		$chatAction = new SendChatAction();
+		$chatAction->chat_id = $sendMessage->chat_id;
+		$chatAction->action = 'typing';
+		$tgLog->performApiRequest($chatAction);
+		$loop->run();
+
 		$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$sendMessage->text .= sprintf('💰 <b>Credit</b>: %s (🎖 %s of %s users)',
-				Utils::numberFormat($stats->credit),
-				Utils::numberFormat($stats->rank),
-				Utils::numberFormat($stats->total_users)
-			) . PHP_EOL;
-		$sendMessage->text .= sprintf('📦 <b>WUs</b>: %d (<a href="%s">certificate</a>)', $stats->wus, $stats->wus_cert) . PHP_EOL;
+		$stats = loadUserStats($foldingUser);
+		if ($stats === null) {
+			$sendMessage->text .= sprintf('%s Error: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+		} else if (isset($stats->error)) { // @TODO if error occured (for example not found, it has 404, so wrapper returns null
+			$sendMessage->text .= sprintf('%s Folding@home API error: "%s"', Icons::ERROR, $stats->error) . PHP_EOL;
+		} else {
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
+					Icons::STATS_CREDIT,
+					Utils::numberFormat($stats->credit),
+					Icons::STATS_CREDIT_RANK,
+					Utils::numberFormat($stats->rank),
+					Utils::numberFormat($stats->total_users)
+				) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>WUs</b>: %d (<a href="%s">certificate</a>)', Icons::STATS_WU, $stats->wus, $stats->wus_cert) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
-		$sendMessage->text .= sprintf('⏳ <b>Last WU done</b>: %s', $stats->last) . PHP_EOL;
-		$sendMessage->text .= sprintf('🏃‍ <b>Active client(s)</b>: %d / %d (last week / 50 days)', $stats->active_7, $stats->active_50) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last) . PHP_EOL;
+			$sendMessage->text .= sprintf('%s‍ <b>Active client(s)</b>: %d / %d (last week / 50 days)', Icons::STATS_ACTIVE_CLIENTS, $stats->active_7, $stats->active_50) . PHP_EOL;
+		}
 		break;
 	case null: // message without command
 		if (isPM($update)) {
@@ -91,17 +106,14 @@ $promise->then(
 		dd($exception, false);
 	}
 );
-
 $loop->run();
 
 function loadUserStats($user) {
-	$stream_context = stream_context_create(['http' => ['timeout' => FOLDING_STATS_TIMEOUT,]]);
-	return json_decode(file_get_contents(getUserUrl($user, true), false, $stream_context));
+	return Utils::requestJson(getUserUrl($user, true));
 }
 
 function loadTeamStats(int $teamId) {
-	$stream_context = stream_context_create(['http' => ['timeout' => FOLDING_STATS_TIMEOUT,]]);
-	return json_decode(file_get_contents(getTeamUrl($teamId, true)));
+	return Utils::requestJson(getTeamUrl($teamId, true));
 }
 
 function getUserUrl(string $user, bool $api = false): string {
