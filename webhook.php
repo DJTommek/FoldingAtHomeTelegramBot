@@ -93,7 +93,7 @@ switch ($command) {
 			$sendMessage->text .= sprintf('%s <b>WUs</b>: %s (<a href="%s">certificate</a>)',
 					Icons::STATS_WU,
 					Utils::numberFormat($stats->wus),
-					$stats->wus_cert
+					$stats->wus_cert . '&cachebuster=' . $stats->last
 				) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
 			$sendMessage->text .= sprintf('%s <b>Last WU done</b>: %s',
@@ -150,7 +150,7 @@ switch ($command) {
 					Utils::numberFormat($stats->wus),
 					Icons::AVERAGE,
 					Utils::numberFormat($stats->wus / count($stats->donors), 2),
-					$stats->wus_cert
+					$stats->wus_cert . '&cachebuster=' . $stats->last
 				) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
 			$sendMessage->text .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last) . PHP_EOL;
