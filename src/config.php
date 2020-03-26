@@ -14,7 +14,6 @@ function exceptions_error_handler($severity, $message, $filename, $lineno) {
 	}
 }
 
-DEFINE('FOLDING_STATS_URL', 'https://stats.foldingathome.org');
 DEFINE('FOLDING_STATS_TIMEOUT', 30);
 
 DEFINE('ERROR_CODE', 1);
@@ -28,10 +27,17 @@ DEFINE('TIME_FORMAT', 'H:i:s');
 require_once __DIR__ . '/../data/config.local.php';
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
+function my_autoloader($className) {
+	$path = $className;
+	$file = __DIR__ . '/libs/' . $path . '.php';
+//	if (file_exists($file)) {
+		require $file;
+//	} else {
+//		throw new Exception('file does not exists');
+//	}
+}
+spl_autoload_register('my_autoloader');
+
 include __DIR__ . '/functions.php';
-include __DIR__ . '/Logs.php';
-include __DIR__ . '/Utils.php';
-include __DIR__ . '/Icons.php';
-include __DIR__ . '/Database.php';
-include __DIR__ . '/Factory.php';
 Logs::write('Request: ' . ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] . ' - ' : '') . $_SERVER['REQUEST_URI']);

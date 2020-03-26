@@ -44,12 +44,10 @@ $params = getParams($update);
 //$foldingTeam = '<i>unknown</i>';
 //$foldingTeamId = 239186; // @TODO remove this temporary set team
 
-$statsUrl = 'https://stats.foldingathome.org';
-
 switch ($command ? mb_strtolower($command) : null) {
 	case '/start':
 		$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$sendMessage->text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', $statsUrl, $statsUrl) . PHP_EOL;
+		$sendMessage->text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', Folding::STATS_URL, Folding::STATS_URL) . PHP_EOL;
 		$sendMessage->text .= sprintf('If you want to see your stats, use /stats or look into /help.') . PHP_EOL;
 		$sendMessage->text .= PHP_EOL;
 		$sendMessage->text .= sprintf('%s <b>Warning</b>: Website API is often very slow so be patient. Bot has automatic timeout set to %d seconds, then it will reply with sorry message.',
@@ -57,13 +55,13 @@ switch ($command ? mb_strtolower($command) : null) {
 		break;
 	case '/help':
 		$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$sendMessage->text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', $statsUrl, $statsUrl) . PHP_EOL;
+		$sendMessage->text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', Folding::STATS_URL, Folding::STATS_URL) . PHP_EOL;
 		$sendMessage->text .= PHP_EOL;
 		$sendMessage->text .= sprintf(Icons::USER . ' <b>User commands</b>:') . PHP_EOL;
 
 		$sendMessage->text .= sprintf(' /stats - load your personal statistics');
 		if ($userData['user_folding_name']) {
-			$sendMessage->text .= sprintf(' (currently set to user <a href="%s">%s</a>)', (getUserUrl($userData['user_folding_name'])), $userData['user_folding_name']);
+			$sendMessage->text .= sprintf(' (currently set to user <a href="%s">%s</a>)', (Folding::getUserUrl($userData['user_folding_name'])), $userData['user_folding_name']);
 		}
 		$sendMessage->text .= PHP_EOL;
 
@@ -74,7 +72,7 @@ switch ($command ? mb_strtolower($command) : null) {
 
 		$sendMessage->text .= sprintf(' /team - load your team statistics.');
 		if ($userData['user_folding_team_id']) {
-			$sendMessage->text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (getTeamUrl($userData['user_folding_team_id'])), $userData['user_folding_team_name']);
+			$sendMessage->text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (Folding::getTeamUrl($userData['user_folding_team_id'])), $userData['user_folding_team_name']);
 		}
 		$sendMessage->text .= PHP_EOL;
 
@@ -87,8 +85,8 @@ switch ($command ? mb_strtolower($command) : null) {
 	case '/stats':
 		if (isset($params[0])) {
 			// parameter is URL with donor
-			if (mb_strpos($params[0], getUserUrl('')) === 0) {
-				$foldingUser = htmlentities(str_replace(getUserUrl(''), '', $params[0]));
+			if (mb_strpos($params[0], Folding::getUserUrl('')) === 0) {
+				$foldingUser = htmlentities(str_replace(Folding::getUserUrl(''), '', $params[0]));
 			} else {
 				// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
 				$foldingUser = htmlentities($params[0]);
@@ -106,20 +104,20 @@ switch ($command ? mb_strtolower($command) : null) {
 			$tgLog->performApiRequest($chatAction);
 			$loop->run();
 
-			$stats = loadUserStats($foldingUser);
+			$stats = Folding::loadUserStats($foldingUser);
 			if ($stats === null) { // Request error
-				$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+				$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 				$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
 				break;
 			}
 			if (isset($stats->error)) { // API error
 				// @TODO if error occured (for example not found, it has 404, so wrapper returns null
-				$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+				$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 				$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
 				break;
 			}
 			// Success!
-			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
 					Icons::STATS_CREDIT,
 					Utils::numberFormat($stats->credit),
@@ -146,8 +144,8 @@ switch ($command ? mb_strtolower($command) : null) {
 	case '/team':
 		if (isset($params[0])) {
 			// parameter is URL with donor
-			if (mb_strpos($params[0], getTeamUrl('')) === 0) {
-				$foldingTeamIdParam = str_replace(getTeamUrl(''), '', $params[0]);
+			if (mb_strpos($params[0], Folding::getTeamUrl('')) === 0) {
+				$foldingTeamIdParam = str_replace(Folding::getTeamUrl(''), '', $params[0]);
 				if (is_numeric($foldingTeamIdParam)) {
 					$foldingTeamId = $foldingTeamIdParam;
 				}
@@ -170,16 +168,16 @@ switch ($command ? mb_strtolower($command) : null) {
 		$tgLog->performApiRequest($chatAction);
 		$loop->run();
 
-		$stats = loadTeamStats($foldingTeamId);
+		$stats = Folding::loadTeamStats($foldingTeamId);
 		if ($stats === null) { // Request error
-			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', Folding::getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
 		} else if (isset($stats->error)) { // API error
 			// @TODO if error occured (for example not found, it has 404, so wrapper returns null
-			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', Folding::getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
 		} else { // Success!
-			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', getTeamUrl($foldingTeamId), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', Folding::getTeamUrl($foldingTeamId), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
 					Icons::STATS_CREDIT,
 					Utils::numberFormat($stats->credit),
@@ -215,13 +213,13 @@ switch ($command ? mb_strtolower($command) : null) {
 			break;
 		}
 		// parameter is URL with donor
-		if (mb_strpos($params[0], getUserUrl('')) === 0) {
-			$foldingUser = htmlentities(str_replace(getUserUrl(''), '', $params[0]));
+		if (mb_strpos($params[0], Folding::getUserUrl('')) === 0) {
+			$foldingUser = htmlentities(str_replace(Folding::getUserUrl(''), '', $params[0]));
 		} else {
 			// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
 			$foldingUser = htmlentities($params[0]);
 		}
-		$stats = loadUserStats($foldingUser);
+		$stats = Folding::loadUserStats($foldingUser);
 		if ($stats === null) { // Request error
 			$sendMessage->text = sprintf('%s <b>Error</b>: Nick/ID "%s" is not valid or API is not available.', Icons::ERROR, $foldingUser) . PHP_EOL;
 			break;
@@ -232,14 +230,14 @@ switch ($command ? mb_strtolower($command) : null) {
 			break;
 		}
 		// Success!
-		$sendMessage->text = sprintf('%s Nick <a href="%s">%s</a> (ID %d) is valid!', Icons::SUCCESS, getUserUrl($stats->name), $stats->name, $stats->id) . PHP_EOL;
+		$sendMessage->text = sprintf('%s Nick <a href="%s">%s</a> (ID %d) is valid!', Icons::SUCCESS, Folding::getUserUrl($stats->name), $stats->name, $stats->id) . PHP_EOL;
 		$foldingTeamId = null;
 		$foldingTeamName = null;
 		if (count($stats->teams) > 0) {
 			$foldingTeamId = $stats->teams[0]->team;
 			$foldingTeamName = $stats->teams[0]->name;
 			$sendMessage->text .= sprintf('%s Default team set to <a href="%s">%s</a> (ID %d), you can change it via /setTeam.',
-					Icons::SUCCESS, getTeamUrl($foldingTeamId), $foldingTeamName, $foldingTeamId) . PHP_EOL;
+					Icons::SUCCESS, Folding::getTeamUrl($foldingTeamId), $foldingTeamName, $foldingTeamId) . PHP_EOL;
 		}
 		$db->updateUser($update->message->from->id, null, $stats->id, $stats->name, $foldingTeamId, $foldingTeamName);
 		$sendMessage->text .= sprintf('Now you can use command /stats %sto get these beautifull statistics.',
@@ -254,8 +252,8 @@ switch ($command ? mb_strtolower($command) : null) {
 			break;
 		}
 		// parameter is URL with team ID
-		if (mb_strpos($params[0], getTeamUrl('')) === 0) {
-			$foldingTeamId = str_replace(getTeamUrl(''), '', $params[0]);
+		if (mb_strpos($params[0], Folding::getTeamUrl('')) === 0) {
+			$foldingTeamId = str_replace(Folding::getTeamUrl(''), '', $params[0]);
 		} else {
 			$foldingTeamId = $params[0];
 		}
@@ -265,7 +263,7 @@ switch ($command ? mb_strtolower($command) : null) {
 			$sendMessage->text = sprintf('%s <b>Error</b>: Team ID is not valid.', Icons::ERROR) . PHP_EOL;
 			break;
 		}
-		$stats = loadTeamStats($foldingTeamId);
+		$stats = Folding::loadTeamStats($foldingTeamId);
 		if ($stats === null) { // Request error
 			$sendMessage->text = sprintf('%s <b>Error</b>: Team ID "%d" is not valid or API is not available.', Icons::ERROR, $foldingTeamId) . PHP_EOL;
 			break;
@@ -276,7 +274,7 @@ switch ($command ? mb_strtolower($command) : null) {
 			break;
 		}
 		// Success!
-		$sendMessage->text = sprintf('%s Team <a href="%s">%s</a> (ID %d) is valid!', Icons::SUCCESS, getTeamUrl($stats->team), $stats->name, $stats->team) . PHP_EOL;
+		$sendMessage->text = sprintf('%s Team <a href="%s">%s</a> (ID %d) is valid!', Icons::SUCCESS, Folding::getTeamUrl($stats->team), $stats->name, $stats->team) . PHP_EOL;
 //		$db->updateUser($update->message->from->id, null, $stats->id, $stats->name, $foldingTeamId, $foldingTeamName);
 		$sendMessage->text .= sprintf('Now you can use command /team to get these beautifull statistics.') . PHP_EOL;
 		break;
@@ -309,31 +307,6 @@ $promise->then(
 );
 $loop->run();
 
-function loadUserStats($user) {
-	return Utils::requestJson(getUserUrl($user, true));
-}
-
-function loadTeamStats($teamId) {
-	return Utils::requestJson(getTeamUrl($teamId, true));
-}
-
-function getUserUrl(string $user, bool $api = false): string {
-	$baseUrl = FOLDING_STATS_URL;
-	if ($api === true) {
-		$baseUrl .= '/api';
-	}
-	$baseUrl .= '/donor/' . $user;
-	return $baseUrl;
-}
-
-function getTeamUrl($teamId, bool $api = false): string {
-	$baseUrl = FOLDING_STATS_URL;
-	if ($api === true) {
-		$baseUrl .= '/api';
-	}
-	$baseUrl .= '/team/' . $teamId;
-	return $baseUrl;
-}
 
 function getCommand($update): ?string {
 	foreach ($update->message->entities as $entity) {
