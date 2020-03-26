@@ -27,7 +27,7 @@ $update->message->from->username = $update->message->from->username === '' ? nul
 $update->message->from->displayname = getDisplayName($update->message->from);
 
 $db = \Factory::get_database();
-$userData = $db->registerUser($update->message->from->id, $update->message->from->username);
+$user = new User($update->message->from->id, $update->message->from->username);
 
 $loop = Factory::create();
 $tgLog = new TgLog(TELEGRAM_BOT_TOKEN, new HttpClientRequestHandler($loop));
@@ -60,8 +60,8 @@ switch ($command ? mb_strtolower($command) : null) {
 		$sendMessage->text .= sprintf(Icons::USER . ' <b>User commands</b>:') . PHP_EOL;
 
 		$sendMessage->text .= sprintf(' /stats - load your personal statistics');
-		if ($userData['user_folding_name']) {
-			$sendMessage->text .= sprintf(' (currently set to user <a href="%s">%s</a>)', (Folding::getUserUrl($userData['user_folding_name'])), $userData['user_folding_name']);
+		if ($user->getFoldingName()) {
+			$sendMessage->text .= sprintf(' (currently set to user <a href="%s">%s</a>)', (Folding::getUserUrl($user->getFoldingName())), $user->getFoldingName());
 		}
 		$sendMessage->text .= PHP_EOL;
 
@@ -71,8 +71,8 @@ switch ($command ? mb_strtolower($command) : null) {
 		$sendMessage->text .= sprintf(Icons::TEAM . ' <b>Team commands</b>:') . PHP_EOL;
 
 		$sendMessage->text .= sprintf(' /team - load your team statistics.');
-		if ($userData['user_folding_team_id']) {
-			$sendMessage->text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (Folding::getTeamUrl($userData['user_folding_team_id'])), $userData['user_folding_team_name']);
+		if ($user->getFoldingTeamId()) {
+			$sendMessage->text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (Folding::getTeamUrl($user->getFoldingTeamId())), $user->getFoldingName());
 		}
 		$sendMessage->text .= PHP_EOL;
 
@@ -92,7 +92,7 @@ switch ($command ? mb_strtolower($command) : null) {
 				$foldingUser = htmlentities($params[0]);
 			}
 		} else {
-			$foldingUser = $userData['user_folding_name'];
+			$foldingUser = $user->getFoldingName();
 		}
 		if ($foldingUser === null) {
 			$sendMessage->text = sprintf('%s You have to set your nick first via /setNick &lt;nick or ID or URL&gt;', Icons::ERROR) . PHP_EOL;
@@ -155,7 +155,7 @@ switch ($command ? mb_strtolower($command) : null) {
 				}
 			}
 		} else {
-			$foldingTeamId = $userData['user_folding_team_id'];
+			$foldingTeamId = $user->getFoldingTeamId();
 		}
 		if ($foldingTeamId === null) {
 			$sendMessage->text = sprintf('%s You have to set your team first via /setTeam &lt;ID or URL&gt;', Icons::ERROR) . PHP_EOL;
@@ -239,7 +239,7 @@ switch ($command ? mb_strtolower($command) : null) {
 			$sendMessage->text .= sprintf('%s Default team set to <a href="%s">%s</a> (ID %d), you can change it via /setTeam.',
 					Icons::SUCCESS, Folding::getTeamUrl($foldingTeamId), $foldingTeamName, $foldingTeamId) . PHP_EOL;
 		}
-		$db->updateUser($update->message->from->id, null, $stats->id, $stats->name, $foldingTeamId, $foldingTeamName);
+		$user->update($update->message->from->id, null, $stats->id, $stats->name, $foldingTeamId, $foldingTeamName);
 		$sendMessage->text .= sprintf('Now you can use command /stats %sto get these beautifull statistics.',
 			$foldingTeamId ? 'or /team ' : '') . PHP_EOL;
 
