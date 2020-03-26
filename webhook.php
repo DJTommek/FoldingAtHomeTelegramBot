@@ -22,6 +22,13 @@ if ($update->update_id === 0) {
 	die('Telegram webhook API data are missing! This page should be requested only from Telegram servers via webhook.');
 }
 
+// tweaks to data from Telegram library
+$update->message->from->username = $update->message->from->username === '' ? null : $update->message->from->username;
+$update->message->from->displayname = getDisplayName($update->message->from);
+
+$db = \Factory::get_database();
+$userData = $db->registerUser($update->message->from->id, $update->message->from->username);
+
 $loop = Factory::create();
 $tgLog = new TgLog(TELEGRAM_BOT_TOKEN, new HttpClientRequestHandler($loop));
 
@@ -33,29 +40,44 @@ $sendMessage->parse_mode = 'HTML';
 $command = getCommand($update);
 $params = getParams($update);
 
-$foldingUser = $update->message->from->username ?? 'unknown';
-$foldingTeam = '<i>unknown</i>';
-$foldingTeamId = 239186; // @TODO remove this temporary set team
+//$foldingUser = $userData['user_folding_name'];
+//$foldingTeam = '<i>unknown</i>';
+//$foldingTeamId = 239186; // @TODO remove this temporary set team
 
 $statsUrl = 'https://stats.foldingathome.org';
 
-switch ($command) {
+switch (mb_strtolower($command)) {
 	case '/start':
 		$sendMessage->text = 'Welcome to ' . TELEGRAM_BOT_NICK . '!';
 		break;
 	case '/help':
 		$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$sendMessage->text .= sprintf(' /help - this text') . PHP_EOL;
+		$sendMessage->text .= sprintf('I\'m simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', $statsUrl, $statsUrl) . PHP_EOL;
+		$sendMessage->text .= PHP_EOL;
 		$sendMessage->text .= sprintf(Icons::USER . ' <b>User commands</b>:') . PHP_EOL;
-		$sendMessage->text .= sprintf(' /stats - load your personal statistics (user <a href="%s">%s</a>)',
-				(getUserUrl($foldingUser)), $foldingUser) . PHP_EOL;
+
+		$sendMessage->text .= sprintf(' /stats - load your personal statistics');
+		if ($userData['user_folding_name']) {
+			$sendMessage->text .= sprintf(' (user <a href="%s">%s</a>)', (getUserUrl($userData['user_folding_name'])), $userData['user_folding_name']);
+		}
+		$sendMessage->text .= PHP_EOL;
+
 		$sendMessage->text .= sprintf(' /stats &lt;nick or ID&gt; - load specific user statistics') . PHP_EOL;
-		$sendMessage->text .= sprintf(' /setNick &lt;nick or ID or URL&gt; - set your nick on folding website if different than your Telegram name.') . PHP_EOL;
+		$sendMessage->text .= sprintf(' /setNick &lt;nick or ID or URL&gt; - set default nick to different than your Telegram username.') . PHP_EOL;
 		$sendMessage->text .= sprintf(Icons::TEAM . ' <b>Team commands</b>:') . PHP_EOL;
-		$sendMessage->text .= sprintf(' /team - load your team statistics. Currently set to <a href="%s">%s</a>',
-				(getTeamUrl($foldingTeamId ?? 0)), $foldingTeam) . PHP_EOL;
+
+		$sendMessage->text .= sprintf(' /team - load your team statistics.');
+		if ($userData['user_folding_team_id']) {
+			$sendMessage->text .= sprintf(' Currently set to <a href="%s">%s</a>', (getTeamUrl($userData['user_folding_team_id'])), $userData['user_folding_team_name']);
+		}
+		$sendMessage->text .= PHP_EOL;
+
 		$sendMessage->text .= sprintf(' /team &lt;team ID or URL&gt; - load specific team statistics') . PHP_EOL;
 		$sendMessage->text .= PHP_EOL;
+		$sendMessage->text .= sprintf('%s <b>Warning</b>: Website API is often very slow so be patient. Bot has automatic timeout set to %d seconds, then it will reply with sorry message.',
+				Icons::WARNING,
+				FOLDING_STATS_TIMEOUT
+			) . PHP_EOL;
 		break;
 	case '/stats':
 		if (isset($params[0])) {
@@ -67,21 +89,29 @@ switch ($command) {
 				$foldingUser = htmlentities($params[0]);
 			}
 		}
-		$chatAction = new SendChatAction();
-		$chatAction->chat_id = $sendMessage->chat_id;
-		$chatAction->action = 'typing';
-		$tgLog->performApiRequest($chatAction);
-		$loop->run();
+		if ($foldingUser === null) {
+			$sendMessage->text = sprintf('You have to set your nick first via /setNick &lt;nick or ID or URL&gt;') . PHP_EOL;
+			break;
+		} else {
+			$chatAction = new SendChatAction();
+			$chatAction->chat_id = $sendMessage->chat_id;
+			$chatAction->action = 'typing';
+			$tgLog->performApiRequest($chatAction);
+			$loop->run();
 
-		$stats = loadUserStats($foldingUser);
-		if ($stats === null) { // Request error
-			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
-		} else if (isset($stats->error)) { // API error
-			// @TODO if error occured (for example not found, it has 404, so wrapper returns null
-			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
-		} else { // Success!
+			$stats = loadUserStats($foldingUser);
+			if ($stats === null) { // Request error
+				$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+				$sendMessage->text .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+				break;
+			}
+			if (isset($stats->error)) { // API error
+				// @TODO if error occured (for example not found, it has 404, so wrapper returns null
+				$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+				$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
+				break;
+			}
+			// Success!
 			$sendMessage->text = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', getUserUrl($foldingUser), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$sendMessage->text .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
 					Icons::STATS_CREDIT,
@@ -95,7 +125,7 @@ switch ($command) {
 					Utils::numberFormat($stats->wus),
 					$stats->wus_cert . '&cachebuster=' . $stats->last
 				) . PHP_EOL;
-//		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
+			//		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
 			$sendMessage->text .= sprintf('%s <b>Last WU done</b>: %s',
 					Icons::STATS_WU_LAST_DONE, $stats->last
 				) . PHP_EOL;
@@ -230,4 +260,16 @@ function getParams($update): array {
 
 function isPM($update): bool {
 	return ($update->message->from->id === $update->message->chat->id);
+}
+
+function getDisplayName($tgfrom) {
+	if ($tgfrom->username) {
+		$displayName = '@' . $tgfrom->username;
+	} else {
+		$displayName = '';
+		$displayName .= ($tgfrom->first_name || ''); // first_name probably fill be always filled
+		$displayName .= ' ';
+		$displayName .= ($tgfrom->last_name || ''); // might be empty
+	}
+	return trim(htmlentities($displayName));
 }

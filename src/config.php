@@ -15,7 +15,7 @@ function exceptions_error_handler($severity, $message, $filename, $lineno) {
 }
 
 DEFINE('FOLDING_STATS_URL', 'https://stats.foldingathome.org');
-DEFINE('FOLDING_STATS_TIMEOUT', 5);
+DEFINE('FOLDING_STATS_TIMEOUT', 30);
 
 DEFINE('ERROR_CODE', 1);
 DEFINE('LOG_ID', rand(10000, 99999));
@@ -32,4 +32,6 @@ include __DIR__ . '/functions.php';
 include __DIR__ . '/Logs.php';
 include __DIR__ . '/Utils.php';
 include __DIR__ . '/Icons.php';
+include __DIR__ . '/Database.php';
+include __DIR__ . '/Factory.php';
 Logs::write('Request: ' . ($_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] . ' - ' : '') . $_SERVER['REQUEST_URI']);
