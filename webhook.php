@@ -46,9 +46,14 @@ $params = getParams($update);
 
 $statsUrl = 'https://stats.foldingathome.org';
 
-switch (mb_strtolower($command)) {
+switch ($command ? mb_strtolower($command) : null) {
 	case '/start':
-		$sendMessage->text = 'Welcome to ' . TELEGRAM_BOT_NICK . '!';
+		$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
+		$sendMessage->text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', $statsUrl, $statsUrl) . PHP_EOL;
+		$sendMessage->text .= sprintf('If you want to see your stats, use /stats or look into /help.') . PHP_EOL;
+		$sendMessage->text .= PHP_EOL;
+		$sendMessage->text .= sprintf('%s <b>Warning</b>: Website API is often very slow so be patient. Bot has automatic timeout set to %d seconds, then it will reply with sorry message.',
+				Icons::WARNING, FOLDING_STATS_TIMEOUT) . PHP_EOL;
 		break;
 	case '/help':
 		$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
@@ -58,7 +63,7 @@ switch (mb_strtolower($command)) {
 
 		$sendMessage->text .= sprintf(' /stats - load your personal statistics');
 		if ($userData['user_folding_name']) {
-			$sendMessage->text .= sprintf(' (user <a href="%s">%s</a>)', (getUserUrl($userData['user_folding_name'])), $userData['user_folding_name']);
+			$sendMessage->text .= sprintf(' (currently set to user <a href="%s">%s</a>)', (getUserUrl($userData['user_folding_name'])), $userData['user_folding_name']);
 		}
 		$sendMessage->text .= PHP_EOL;
 
@@ -69,11 +74,12 @@ switch (mb_strtolower($command)) {
 
 		$sendMessage->text .= sprintf(' /team - load your team statistics.');
 		if ($userData['user_folding_team_id']) {
-			$sendMessage->text .= sprintf(' Currently set to <a href="%s">%s</a>', (getTeamUrl($userData['user_folding_team_id'])), $userData['user_folding_team_name']);
+			$sendMessage->text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (getTeamUrl($userData['user_folding_team_id'])), $userData['user_folding_team_name']);
 		}
 		$sendMessage->text .= PHP_EOL;
 
 		$sendMessage->text .= sprintf(' /team &lt;team ID or URL&gt; - load specific team statistics') . PHP_EOL;
+		$sendMessage->text .= sprintf(' /setTeam &lt;ID or URL&gt; - set default team') . PHP_EOL;
 		$sendMessage->text .= PHP_EOL;
 		$sendMessage->text .= sprintf('%s <b>Warning</b>: Website API is often very slow so be patient. Bot has automatic timeout set to %d seconds, then it will reply with sorry message.',
 				Icons::WARNING, FOLDING_STATS_TIMEOUT) . PHP_EOL;
@@ -276,13 +282,18 @@ switch (mb_strtolower($command)) {
 		break;
 	case null: // message without command
 		if (isPM($update)) {
-			$sendMessage->text = 'Hello!' . PHP_EOL . 'If you want to see your stats, use /stats or look into /help.';
+			$sendMessage->text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$sendMessage->text .= sprintf('If you want to see your stats, use /stats or look into /help.') . PHP_EOL;
+			$sendMessage->text .= PHP_EOL;
+			$sendMessage->text .= sprintf('%s <b>Warning</b>: Website API is often very slow so be patient. Bot has automatic timeout set to %d seconds, then it will reply with sorry message.',
+					Icons::WARNING, FOLDING_STATS_TIMEOUT) . PHP_EOL;
 		} else {
 			// keep quiet in groups...
 		}
 		break;
 	default: // unknown command
-		$sendMessage->text = 'Sorry, I don\'t know command... Try /help to get list of all commands.'; // @TODO add info which command was written
+		$sendMessage->text = sprintf('%s Sorry, I don\'t know command...', Icons::ERROR) . PHP_EOL; // @TODO add info which command was written
+		$sendMessage->text .= sprintf('Try /help to get list of all commands.');
 		break;
 }
 
