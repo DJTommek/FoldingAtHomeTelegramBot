@@ -77,6 +77,10 @@ class User
 		return $this->get();
 	}
 
+	public function getUrl() {
+		return Folding::getUserUrl($this->foldingName);
+	}
+
 	public function get() {
 		return $this;
 	}
