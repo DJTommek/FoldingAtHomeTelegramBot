@@ -114,7 +114,9 @@ class Folding
 				Icons::AVERAGE,
 				Utils::numberFormat($stats->active_50 / count($stats->donors), 2)
 			) . PHP_EOL;
-		if (count($stats->donors) > 2) {
+
+		// Show top x donors but only if at least two donors are available
+		if (count($stats->donors) >= 2) {
 			$message .= PHP_EOL;
 			$message .= Folding::formatTeamStatsTop($stats->donors);
 		}
