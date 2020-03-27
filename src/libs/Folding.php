@@ -34,7 +34,7 @@ class Folding
 
 		// Request error
 		if ($stats === null) {
-			$message = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$message = sprintf('%s\'s folding stats from %s:', Folding::formatUserLink($foldingUser), TELEGRAM_BOT_NICK) . PHP_EOL;
 			$message .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
 			return $message;
 		}
@@ -48,7 +48,7 @@ class Folding
 		}
 
 		// Success!
-		$message = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
+		$message = sprintf('%s\'s folding stats from %s:', Folding::formatUserLink($stats->name), TELEGRAM_BOT_NICK) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
 				Icons::STATS_CREDIT,
 				Utils::numberFormat($stats->credit),
@@ -114,11 +114,50 @@ class Folding
 				Icons::AVERAGE,
 				Utils::numberFormat($stats->active_50 / count($stats->donors), 2)
 			) . PHP_EOL;
+		if (count($stats->donors) > 2) {
+			$message .= PHP_EOL;
+			$message .= Folding::formatTeamStatsTop($stats->donors);
+		}
 		return $message;
 	}
 
-	public static function formatTeamStatsTop($donors, $count = 3) {
-
+	public static function formatUserLink($user) {
+		return sprintf('<a href="%s">%s</a>', self::getUserUrl($user), $user);
 	}
 
+	public static function formatTeamStatsTop($donors, $count = 5) {
+		$showing = min(count($donors), $count);
+		if ($showing === 0) {
+			return null;
+		}
+		$message = sprintf('%s <b>Top %d donors</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
+		foreach ($donors as $i => $donor) {
+			if ($i >= $showing) {
+				break;
+			}
+			switch ($i + 1) {
+				case 1:
+					$medal = Icons::MEDAL1 . ' ';
+					break;
+				case 2:
+					$medal = Icons::MEDAL2 . ' ';
+					break;
+				case 3:
+					$medal = Icons::MEDAL3 . ' ';
+					break;
+				default:
+					$medal = '';
+					break;
+			}
+			$message .= sprintf('%s%s %s WUs: %s, %s Credit: %s',
+					$medal,
+					self::formatUserLink($donor->name),
+					Icons::STATS_WU,
+					Utils::numberFormat($donor->wus),
+					Icons::STATS_CREDIT,
+					Utils::numberFormat($donor->credit)
+				) . PHP_EOL;
+		}
+		return $message;
+	}
 }

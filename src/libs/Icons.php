@@ -17,4 +17,11 @@ class Icons
 	const STATS_WU = "\u{1F4E6}"; // https://emojipedia.org/package/
 	const STATS_WU_LAST_DONE = "\u{23F3}"; // https://emojipedia.org/hourglass-not-done/
 	const STATS_ACTIVE_CLIENTS = "\u{1F3C3}"; // https://emojipedia.org/person-running/
+	const STATS_TEAM_TOP = "\u{1F3C6}"; // https://emojipedia.org/trophy/
+
+	const MEDAL1 = "\u{1F947}"; // https://emojipedia.org/1st-place-medal/
+	const MEDAL2 = "\u{1F948}"; // https://emojipedia.org/2nd-place-medal/
+	const MEDAL3 = "\u{1F949}"; // https://emojipedia.org/3rd-place-medal/
+
+
 }
