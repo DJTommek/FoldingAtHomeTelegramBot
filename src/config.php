@@ -29,7 +29,7 @@ require_once __DIR__ . '/../data/config.local.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 function my_autoloader($className) {
-	$path = $className;
+	$path = str_replace('\\', '/', $className);
 	$file = __DIR__ . '/libs/' . $path . '.php';
 //	if (file_exists($file)) {
 		require $file;

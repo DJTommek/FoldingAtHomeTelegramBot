@@ -1,5 +1,7 @@
 <?php
 
+namespace TelegramWrapper;
+
 class Telegram
 {
 	public static function getDisplayName($tgfrom) {

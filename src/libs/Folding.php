@@ -89,7 +89,7 @@ class Folding
 		}
 
 		// Success!
-		$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($foldingTeamId), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
+		$message = sprintf('<a href="%s">%s</a>\'s team folding stats:', self::getTeamUrl($foldingTeamId), $stats->name) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
 				Icons::STATS_CREDIT,
 				Utils::numberFormat($stats->credit),
