@@ -14,7 +14,7 @@ function exceptions_error_handler($severity, $message, $filename, $lineno) {
 	}
 }
 
-DEFINE('FOLDING_STATS_TIMEOUT', 30);
+DEFINE('FOLDING_STATS_TIMEOUT', 5);
 
 DEFINE('ERROR_CODE', 1);
 DEFINE('LOG_ID', rand(10000, 99999));

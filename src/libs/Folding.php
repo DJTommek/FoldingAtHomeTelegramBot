@@ -35,12 +35,12 @@ class Folding
 		// Request error
 		if ($stats === null) {
 			$message = sprintf('%s\'s folding stats from %s:', Folding::formatUserLink($foldingUser), TELEGRAM_BOT_NICK) . PHP_EOL;
-			$message .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+			$message .= sprintf('%s <b>Error</b>: User doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR) . PHP_EOL;
 			return $message;
 		}
 
 		// API error
-		// @TODO if error occured (for example not found, it has 404, so wrapper returns null
+		// @TODO unreachable state because returning 404 makes $stats = null
 		if (isset($stats->error)) {
 			$message = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$message .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
@@ -77,11 +77,11 @@ class Folding
 		// Request error
 		if ($stats === null) {
 			$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
-			$message .= sprintf('%s <b>Error</b>: Folding@home API is probably not available, try again later', Icons::ERROR) . PHP_EOL;
+			$message .= sprintf('%s <b>Error</b>: Team doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR) . PHP_EOL;
 			return $message;
 		}
 		// API error
-		// @TODO if error occured (for example not found, it has 404, so wrapper returns null
+		// @TODO unreachable state because returning 404 makes $stats = null
 		if (isset($stats->error)) {
 			$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$message .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;

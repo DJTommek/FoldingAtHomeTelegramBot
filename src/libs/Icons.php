@@ -23,5 +23,6 @@ class Icons
 	const MEDAL2 = "\u{1F948}"; // https://emojipedia.org/2nd-place-medal/
 	const MEDAL3 = "\u{1F949}"; // https://emojipedia.org/3rd-place-medal/
 
-
+	const REFRESH = "\u{267B}"; // https://emojipedia.org/recycling-symbol/
+	const DEFAULT = "\u{1F3E0}"; // https://emojipedia.org/house/
 }

@@ -16,21 +16,39 @@ class Telegram
 		return trim(htmlentities($displayName));
 	}
 
+	public static function isButtonClick($update): bool {
+		return (!empty($update->callback_query));
+	}
+
 	public static function isPM($update): bool {
-		return ($update->message->from->id === $update->message->chat->id);
+		if (self::isButtonClick($update)) {
+			$message = $update->callback_query->message;
+		} else {
+			$message = $update->message;
+		}
+		return ($message->from->id === $message->chat->id);
 	}
 
 	public static function getCommand($update): ?string {
-		foreach ($update->message->entities as $entity) {
-			if ($entity->offset === 0 && $entity->type === 'bot_command') {
-				return mb_strcut($update->message->text, $entity->offset, $entity->length);
+		if (self::isButtonClick($update)) {
+			$fullCommand = $update->callback_query->data;
+			return explode(' ', $fullCommand)[0];
+		} else {
+			foreach ($update->message->entities as $entity) {
+				if ($entity->offset === 0 && $entity->type === 'bot_command') {
+					return mb_strcut($update->message->text, $entity->offset, $entity->length);
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 	public static function getParams($update): array {
-		$text = $update->message->text;
+		if (self::isButtonClick($update)) {
+			$text = $update->callback_query->data;
+		} else {
+			$text = $update->message->text;
+		}
 		$params = explode(' ', $text);
 		array_shift($params);
 		return $params;

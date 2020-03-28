@@ -4,6 +4,10 @@ namespace TelegramWrapper\Command;
 
 use \Folding;
 use \Icons;
+use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Button;
+use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
+use unreal4u\TelegramAPI\Telegram\Types\KeyboardButton;
+use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
 
 class StatsCommand extends Command
 {
@@ -25,9 +29,34 @@ class StatsCommand extends Command
 			$this->reply(sprintf('%s You have to set your nick first via /setNick &lt;nick or ID or URL&gt;', Icons::ERROR) . PHP_EOL);
 			return;
 		}
-		$this->sendAction();
+		if ($this->isButtonClick() === false) {
+			$this->sendAction();
+		}
 		$stats = Folding::loadUserStats($foldingUser);
 		$text = Folding::formatUserStats($stats, $foldingUser);
-		$this->reply($text);
+
+		dd($stats, false);
+
+		$replyMarkup = new Markup();
+		$replyMarkup->inline_keyboard = [
+			[
+				[
+					'text' => Icons::REFRESH . ' Refresh',
+					'callback_data' => '/stats' . ($stats ? ' ' . $stats->id : ''),
+				],
+			],
+		];
+		if ($stats) {
+			$replyMarkup->inline_keyboard[0][] = [
+				'text' => Icons::DEFAULT . ' Set as default',
+				'callback_data' => '/setnick ' . $stats->id,
+			];
+		}
+		if ($this->isButtonClick()) {
+			$this->replyButton($text, $replyMarkup);
+			$this->flash('Refreshed!');
+		} else {
+			$this->reply($text, $replyMarkup);
+		}
 	}
 }

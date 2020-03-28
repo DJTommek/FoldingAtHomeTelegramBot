@@ -23,9 +23,15 @@ if ($update->update_id === 0) {
 }
 
 // tweaks to data from Telegram library
-$update->message->from->username = $update->message->from->username === '' ? null : $update->message->from->username;
-$update->message->from->displayname = TelegramWrapper\Telegram::getDisplayName($update->message->from);
-$user = new User($update->message->from->id, $update->message->from->username);
+if (TelegramWrapper\Telegram::isButtonClick($update)) {
+	$update->callback_query->message->from->username = $update->callback_query->message->from->username === '' ? null : $update->callback_query->message->from->username;
+	$update->callback_query->message->from->displayname = TelegramWrapper\Telegram::getDisplayName($update->callback_query->message->from);
+	$user = new User($update->callback_query->message->from->id, $update->callback_query->message->from->username);
+} else {
+	$update->message->from->username = $update->message->from->username === '' ? null : $update->message->from->username;
+	$update->message->from->displayname = TelegramWrapper\Telegram::getDisplayName($update->message->from);
+	$user = new User($update->message->from->id, $update->message->from->username);
+}
 
 $loop = Factory::create();
 $tgLog = new TgLog(TELEGRAM_BOT_TOKEN, new HttpClientRequestHandler($loop));
