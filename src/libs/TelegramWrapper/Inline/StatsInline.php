@@ -40,7 +40,7 @@ class StatsInline extends Inline
 		if ($stats) {
 			$replyMarkup->inline_keyboard[0][] = [
 				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setnick ' . $stats->id,
+				'callback_data' => '/setnick ' . $stats->name . ' ' . $stats->id,
 			];
 		}
 		$this->replyButton($text, $replyMarkup);
