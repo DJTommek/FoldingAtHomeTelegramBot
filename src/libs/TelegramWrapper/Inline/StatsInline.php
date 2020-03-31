@@ -17,13 +17,14 @@ class StatsInline extends Inline
 		if (isset($this->params[0])) {
 			$foldingUser = htmlentities($this->params[0]);
 		} else {
-			$this->flash('Invalid button, parameter is not set.', true);
+			$this->flash(sprintf('%s Invalid button, parameter is not set.', Icons::ERROR));
 			return;
 		}
 
 		$stats = Folding::loadUserStats($foldingUser);
 		if (!$stats) {
 			$this->flash(sprintf('%s Error: User doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR), true);
+			return;
 		}
 
 		$text = Folding::formatUserStats($stats, $foldingUser);
@@ -32,19 +33,19 @@ class StatsInline extends Inline
 		$replyMarkup->inline_keyboard = [
 			[
 				[
-					'text' => Icons::REFRESH . ' Refresh',
-					'callback_data' => '/stats ' . $foldingUser,
+					'text' => sprintf('%s Refresh', Icons::REFRESH),
+					'callback_data' => sprintf('/stats %s', $foldingUser),
 				],
 			],
 		];
 		if ($stats) {
 			[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($stats);
 			$replyMarkup->inline_keyboard[0][] = [
-				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setnick ' . $stats->id . ' ' . $stats->name . ' ' . $foldingTeamId . ' ' . $foldingTeamName,
+				'text' => sprintf('%s Set as default', Icons::DEFAULT),
+				'callback_data' => sprintf('/setnick %d %s %d %s', $stats->id, $stats->name, $foldingTeamId, $foldingTeamName),
 			];
 		}
 		$this->replyButton($text, $replyMarkup);
-		$this->flash('Refreshed!');
+		$this->flash(sprintf('%s User stats were refreshed!', Icons::SUCCESS));
 	}
 }

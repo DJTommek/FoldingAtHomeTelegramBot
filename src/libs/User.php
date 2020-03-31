@@ -45,7 +45,7 @@ class User
 		return $this->db->query('SELECT * FROM fahtb_user WHERE user_telegram_id = ?', $telegramId)->fetchAll()[0];
 	}
 
-	public function update(int $telegramId, ?string $telegramUsername = null, ?int $foldingId = null, ?string $foldingName = null, ?int $teamId = null, ?string $teamName = null) {
+	public function update(?string $telegramUsername = null, ?int $foldingId = null, ?string $foldingName = null, ?int $teamId = null, ?string $teamName = null) {
 		$query = 'UPDATE fahtb_user SET ';
 		$queries = [];
 		$params = [];
@@ -71,7 +71,8 @@ class User
 		}
 		if (count($params) > 0) {
 			$query .= join($queries, ', ') . ' WHERE user_telegram_id = ?';
-			$params[] = $telegramId;
+
+			$params[] = $this->telegramId;
 			call_user_func_array([$this->db, 'query'], array_merge([$query], $params));
 		}
 		return $this->get();

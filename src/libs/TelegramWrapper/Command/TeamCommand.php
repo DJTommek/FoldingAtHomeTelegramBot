@@ -52,7 +52,7 @@ class TeamCommand extends Command
 			[
 				[
 					'text' => Icons::REFRESH . ' Refresh',
-					'callback_data' => '/stats ' . $foldingTeamId,
+					'callback_data' => '/team ' . $foldingTeamId,
 				],
 			],
 		];

@@ -31,6 +31,9 @@ class Folding
 	}
 
 	public static function getTeamDataFromUserStats($stats) {
+		return [$stats->teams[0]->team, $stats->teams[0]->name];
+
+		// @TODO It seems, that API is always returning at least one team, even if user is not in any team (in that case it is team ID 0 with name "Default (No team specified)". Needs testing.
 		$foldingTeamId = null;
 		$foldingTeamName = null;
 		if (count($stats->teams) > 0) {
@@ -136,6 +139,11 @@ class Folding
 			$message .= PHP_EOL;
 			$message .= Folding::formatTeamStatsTop($stats->donors);
 		}
+		$message .= PHP_EOL;
+
+		$message .= sprintf('Loaded %s UTC',
+				gmdate(DATE_FORMAT . ' ' . TIME_FORMAT)
+			) . PHP_EOL;
 		return $message;
 	}
 
