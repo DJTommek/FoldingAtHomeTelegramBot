@@ -22,6 +22,12 @@ if ($update->update_id === 0) {
 	die('Telegram webhook API data are missing! This page should be requested only from Telegram servers via webhook.');
 }
 
+$loop = Factory::create();
+$tgLog = new TgLog(TELEGRAM_BOT_TOKEN, new HttpClientRequestHandler($loop));
+
+$command = TelegramWrapper\Telegram::getCommand($update);
+$params = TelegramWrapper\Telegram::getParams($update);
+
 // tweaks to data from Telegram library
 if (TelegramWrapper\Telegram::isButtonClick($update)) {
 	$update->callback_query->message->from->username = $update->callback_query->message->from->username === '' ? null : $update->callback_query->message->from->username;
@@ -32,12 +38,6 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 	$update->message->from->displayname = TelegramWrapper\Telegram::getDisplayName($update->message->from);
 	$user = new User($update->message->from->id, $update->message->from->username);
 }
-
-$loop = Factory::create();
-$tgLog = new TgLog(TELEGRAM_BOT_TOKEN, new HttpClientRequestHandler($loop));
-
-$command = TelegramWrapper\Telegram::getCommand($update);
-$params = TelegramWrapper\Telegram::getParams($update);
 
 switch ($command ? mb_strtolower($command) : null) {
 	case '/start':
@@ -57,46 +57,7 @@ switch ($command ? mb_strtolower($command) : null) {
 		new \TelegramWrapper\Command\TeamCommand($update, $tgLog, $loop, $user);
 		break;
 	case '/setnick':
-		new \TelegramWrapper\Command\SetNickCommand($update, $tgLog, $loop, $user);
-		break;
-		if (!isset($params[0])) {
-			$sendMessage->text = sprintf('%s <b>Error</b>: command %s is missing parameter. Examples:', Icons::ERROR, $command) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s DJTommek', $command) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s 68256828', $command) . PHP_EOL;
-			$sendMessage->text .= sprintf('%s https://stats.foldingathome.org/donor/DJTommek', $command) . PHP_EOL;
-			break;
-		}
-		// parameter is URL with donor
-		if (mb_strpos($params[0], Folding::getUserUrl('')) === 0) {
-			$foldingUser = htmlentities(str_replace(Folding::getUserUrl(''), '', $params[0]));
-		} else {
-			// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
-			$foldingUser = htmlentities($params[0]);
-		}
-		$stats = Folding::loadUserStats($foldingUser);
-		if ($stats === null) { // Request error
-			$sendMessage->text = sprintf('%s <b>Error</b>: Nick/ID "%s" is not valid or API is not available.', Icons::ERROR, $foldingUser) . PHP_EOL;
-			break;
-		}
-		if (isset($stats->error)) { // API error
-			// @TODO if error occured (for example not found, it has 404, so wrapper returns null
-			$sendMessage->text .= sprintf('%s <b>Error</b> from Folding@home API: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
-			break;
-		}
-		// Success!
-		$sendMessage->text = sprintf('%s Nick <a href="%s">%s</a> (ID %d) is valid!', Icons::SUCCESS, Folding::getUserUrl($stats->name), $stats->name, $stats->id) . PHP_EOL;
-		$foldingTeamId = null;
-		$foldingTeamName = null;
-		if (count($stats->teams) > 0) {
-			$foldingTeamId = $stats->teams[0]->team;
-			$foldingTeamName = $stats->teams[0]->name;
-			$sendMessage->text .= sprintf('%s Default team set to <a href="%s">%s</a> (ID %d), you can change it via /setTeam.',
-					Icons::SUCCESS, Folding::getTeamUrl($foldingTeamId), $foldingTeamName, $foldingTeamId) . PHP_EOL;
-		}
-		$user->update($update->message->from->id, null, $stats->id, $stats->name, $foldingTeamId, $foldingTeamName);
-		$sendMessage->text .= sprintf('Now you can use command /stats %sto get these beautifull statistics.',
-				$foldingTeamId ? 'or /team ' : '') . PHP_EOL;
-
+		new \TelegramWrapper\Inline\SetNickInline($update, $tgLog, $loop, $user);
 		break;
 	case '/setteam':
 		new \TelegramWrapper\Command\SetTeamCommand($update, $tgLog, $loop, $user);

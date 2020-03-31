@@ -1,11 +1,11 @@
 <?php
 
-namespace TelegramWrapper\Command;
+namespace TelegramWrapper\Inline;
 
 use \Folding;
 use \Icons;
 
-class SetNickCommand extends Command
+class SetTeamInline extends Inline
 {
 	public function __construct($update, $tgLog, $loop, \User $user) {
 		parent::__construct($update, $tgLog, $loop);

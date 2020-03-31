@@ -30,6 +30,16 @@ class Folding
 		return $baseUrl;
 	}
 
+	public static function getTeamDataFromUserStats($stats) {
+		$foldingTeamId = null;
+		$foldingTeamName = null;
+		if (count($stats->teams) > 0) {
+			$foldingTeamId = $stats->teams[0]->team;
+			$foldingTeamName = $stats->teams[0]->name;
+		}
+		return [$foldingTeamId, $foldingTeamName];
+	}
+
 	public static function formatUserStats($stats, $foldingUser) {
 
 		// Request error

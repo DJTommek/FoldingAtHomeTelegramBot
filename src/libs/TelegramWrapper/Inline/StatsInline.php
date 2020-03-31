@@ -38,9 +38,10 @@ class StatsInline extends Inline
 			],
 		];
 		if ($stats) {
+			[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($stats);
 			$replyMarkup->inline_keyboard[0][] = [
 				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setnick ' . $stats->name . ' ' . $stats->id,
+				'callback_data' => '/setnick ' . $stats->id . ' ' . $stats->name . ' ' . $foldingTeamId . ' ' . $foldingTeamName,
 			];
 		}
 		$this->replyButton($text, $replyMarkup);
