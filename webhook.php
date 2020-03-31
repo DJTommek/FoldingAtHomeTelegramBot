@@ -47,7 +47,11 @@ switch ($command ? mb_strtolower($command) : null) {
 		new \TelegramWrapper\Command\HelpCommand($update, $tgLog, $loop, $user);
 		break;
 	case '/stats':
-		new \TelegramWrapper\Command\StatsCommand($update, $tgLog, $loop, $user);
+		if (TelegramWrapper\Telegram::isButtonClick($update)) {
+			new \TelegramWrapper\Inline\StatsInline($update, $tgLog, $loop, $user);
+		} else {
+			new \TelegramWrapper\Command\StatsCommand($update, $tgLog, $loop, $user);
+		}
 		break;
 	case '/team':
 		new \TelegramWrapper\Command\TeamCommand($update, $tgLog, $loop, $user);
@@ -91,7 +95,7 @@ switch ($command ? mb_strtolower($command) : null) {
 		}
 		$user->update($update->message->from->id, null, $stats->id, $stats->name, $foldingTeamId, $foldingTeamName);
 		$sendMessage->text .= sprintf('Now you can use command /stats %sto get these beautifull statistics.',
-			$foldingTeamId ? 'or /team ' : '') . PHP_EOL;
+				$foldingTeamId ? 'or /team ' : '') . PHP_EOL;
 
 		break;
 	case '/setteam':

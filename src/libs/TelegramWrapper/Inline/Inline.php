@@ -1,13 +1,13 @@
 <?php
 
-namespace TelegramWrapper\Command;
+namespace TelegramWrapper\Inline;
 
 
 use TelegramWrapper\Telegram;
 use unreal4u\TelegramAPI\Telegram\Methods\AnswerCallbackQuery;
 use unreal4u\TelegramAPI\Telegram\Methods\SendChatAction;
 
-abstract class Command
+abstract class Inline
 {
 	private $update;
 	private $tgLog;
@@ -26,20 +26,27 @@ abstract class Command
 	}
 
 	public function getChatId() {
-		return $this->update->message->chat->id;
+		return $this->update->callback_query->message->chat->id;
 	}
 
 	public function getFromId() {
-		return $this->update->message->from->id;
+		return $this->update->callback_query->message->from->id;
 	}
 
 	public function isPm() {
 		return Telegram::isPM($this->update);
 	}
 
-	public function reply(string $text, $replyMarkup = null) {
-		$msg = new \TelegramWrapper\SendMessage($this->getChatId(), $text, null, $replyMarkup);
+	public function replyButton(string $text, $replyMarkup = null) {
+		$msg = new \TelegramWrapper\SendMessage($this->getChatId(), $text, null, $replyMarkup, $this->update->callback_query->message->message_id);
 		$this->run($msg->msg);
+	}
+	public function flash(string $text, bool $alert = false) {
+		$flash = new AnswerCallbackQuery();
+		$flash->text = $text;
+		$flash->show_alert = $alert;
+		$flash->callback_query_id = $this->update->callback_query->id;
+		$this->run($flash);
 	}
 
 	public function sendAction(string $action = 'typing') {

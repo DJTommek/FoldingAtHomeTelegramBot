@@ -70,6 +70,12 @@ class Folding
 				Utils::numberFormat($stats->active_7),
 				Utils::numberFormat($stats->active_50)
 			) . PHP_EOL;
+
+		$message .= PHP_EOL;
+
+		$message .= sprintf('Loaded %s UTC',
+				gmdate(DATE_FORMAT . ' ' . TIME_FORMAT)
+			) . PHP_EOL;
 		return $message;
 	}
 
