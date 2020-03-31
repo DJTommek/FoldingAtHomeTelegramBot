@@ -35,7 +35,7 @@ class StatsCommand extends Command
 			}
 		} else {
 			$foldingUser = $user->getFoldingName();
-			if ($foldingUser) {
+			if (!$foldingUser) {
 				$msg = sprintf('%s <b>Error</b>: Missing required parameter nick, ID or URL. Examples:', Icons::ERROR) . PHP_EOL;
 				$msg .= $exampleText;
 				$msg .= PHP_EOL;
