@@ -26,9 +26,7 @@ class Logs
 	public static function readLog(string $fileName): array {
 		if (isset($fileName) && preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}\.log$/", $fileName)) {
 			$fileContent = file_get_contents(LOG_FOLDER . $fileName);
-			$lines = explode(PHP_EOL, $fileContent);
-			array_reverse($lines);
-			return $lines;
+			return explode(PHP_EOL, $fileContent);
 		}
 		return [];
 	}
