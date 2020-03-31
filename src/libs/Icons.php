@@ -9,6 +9,7 @@ class Icons
 	const ERROR = "\u{26D4}"; // https://emojipedia.org/no-entry/
 	const WARNING = "\u{26A0}"; // https://emojipedia.org/warning/
 	const SUCCESS = "\u{2705}"; // https://emojipedia.org/check-mark-button/
+	const INFO = "\u{2139}"; // https://emojipedia.org/information/
 
 	const USER = "\u{1F44D}"; // https://emojipedia.org/thumbs-up/
 	const TEAM = "\u{1F590}"; // https://emojipedia.org/hand-with-fingers-splayed/

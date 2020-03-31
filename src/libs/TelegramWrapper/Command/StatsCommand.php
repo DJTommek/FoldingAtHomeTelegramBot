@@ -39,7 +39,7 @@ class StatsCommand extends Command
 				$msg = sprintf('%s <b>Error</b>: Missing required parameter nick, ID or URL. Examples:', Icons::ERROR) . PHP_EOL;
 				$msg .= $exampleText;
 				$msg .= PHP_EOL;
-				$msg .= sprintf('Pro tip: load some user stats and then click on "%s Set as default". After that you can use /stats command without parameters.', ICONS::DEFAULT) . PHP_EOL;
+				$msg .= sprintf('%s PRO tip: load some user stats and then click on "%s Set as default". After that you can use %s command without parameters.', ICONS::INFO, ICONS::DEFAULT, $command) . PHP_EOL;
 				$this->reply($msg);
 				return;
 			}
