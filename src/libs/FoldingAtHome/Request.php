@@ -1,0 +1,55 @@
+<?php
+
+namespace FoldingAtHome;
+
+abstract class Request
+{
+	const STATS_BASE_URL = 'https://stats.foldingathome.org';
+
+	/**
+	 * API is very slow if request is not cached.
+	 * Recommended usage is make request and if API doesn't respond in short time, wait a while (might take up to minute) and repeat request again.
+	 * Now it should be cached on their servers and response should be quick.
+	 */
+	const TIMEOUT = 3;
+
+	/**
+	 * @param string $url
+	 * @param array $curlOpts
+	 * @return mixed
+	 * @throws Exceptions\ApiErrorException
+	 * @throws Exceptions\BadResponseException
+	 */
+	public function fileGetContent(string $url, array $curlOpts = []) {
+		$curl = curl_init($url);
+		$curlOpts[CURLOPT_RETURNTRANSFER] = true;
+		$curlOpts[CURLOPT_HEADER] = true;
+		curl_setopt_array($curl, $curlOpts);
+		$curlResponse = curl_exec($curl);
+		if ($curlResponse === false) { // @TODO translate to CURLE_something error https://www.php.net/manual/en/function.curl-errno.php
+			if (curl_errno($curl) === 28) {
+				throw new Exceptions\ApiTimeoutException('API request timeouted.');
+			} else {
+				throw new Exceptions\BadResponseException('CURL error ' . curl_errno($curl));
+			}
+		}
+		list($header, $body) = explode("\r\n\r\n", $curlResponse, 2);
+		if (!$body) {
+			$responseCode = trim(explode(PHP_EOL, $header)[0]);
+			throw new Exceptions\BadResponseException('Bad API response from "' . $url . '": "' . $responseCode . '".');
+		}
+		try {
+			$jsonResponse = json_decode($body);
+		} catch (\Exception $exception) {
+			throw new Exceptions\BadResponseException('Bad API response from "' . $url . '": content is not valid JSON."');
+		}
+		if (isset($jsonResponse->error)) {
+			throw new Exceptions\ApiErrorException($jsonResponse->error);
+		}
+		return $jsonResponse;
+	}
+
+	abstract function getUrl(string $id, bool $api = false);
+
+	abstract function load(array $curlOpts = []);
+}
