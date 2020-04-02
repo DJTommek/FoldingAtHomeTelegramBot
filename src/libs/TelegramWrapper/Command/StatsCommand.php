@@ -31,18 +31,18 @@ class StatsCommand extends Command
 		if (isset($this->params[0])) {
 			// parameter is URL with donor ID
 			if (mb_strpos($this->params[0], Folding::getUserUrl('')) === 0) {
-				$userId = htmlentities(str_replace(Folding::getUserUrl(''), '', $this->params[0]));
+				$foldingUserId = htmlentities(str_replace(Folding::getUserUrl(''), '', $this->params[0]));
 			} else {
 				// @TODO do some preg_match(), probably "^[^a-zA-Z0-9_%-]+$" (worked for top 100 on 2020-03-25)
-				$userId = htmlentities($this->params[0]);
+				$foldingUserId = htmlentities($this->params[0]);
 			}
-			if (!$userId) {
+			if (!$foldingUserId) {
 				$this->reply(sprintf('%s <b>Error</b>: Parameter is not valid, it has to be nick, ID or valid URL. Examples: %s', Icons::ERROR, $exampleText));
 				return;
 			}
 		} else {
-			$userId = $user->getFoldingName();
-			if (!$userId) {
+			$foldingUserId = $user->getFoldingName();
+			if (!$foldingUserId) {
 				$msg = sprintf('%s <b>Error</b>: Missing required parameter nick, ID or URL. Examples:', Icons::ERROR) . PHP_EOL;
 				$msg .= $exampleText;
 				$msg .= PHP_EOL;
@@ -51,21 +51,21 @@ class StatsCommand extends Command
 				return;
 			}
 		}
-		if (is_null($userId)) {
+		if (is_null($foldingUserId)) {
 			$this->reply(sprintf('%s You have to set your nick first via /setNick &lt;nick or ID or URL&gt;', Icons::ERROR) . PHP_EOL);
 			return;
 		}
 		$this->sendAction();
 		try {
-			$userStats = (new RequestUser($userId))->load();
+			$userStats = (new RequestUser($foldingUserId))->load();
 		} catch (NotFoundException $exception) {
-			$this->reply(sprintf('%s User <b>%s</b> not found', Icons::ERROR, htmlentities($userId)), $replyMarkup);
+			$this->reply(sprintf('%s User <b>%s</b> not found', Icons::ERROR, htmlentities($foldingUserId)), $replyMarkup);
 			return;
 		} catch (ApiErrorException $exception) {
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
 			return;
 		} catch (ApiTimeoutException $exception) {
-			$replyMarkup->inline_keyboard[] = $this->addRefreshButton($userId);
+			$replyMarkup->inline_keyboard[] = $this->addRefreshButton($foldingUserId);
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
 			return;
 		} catch (GeneralException $exception) {
@@ -74,23 +74,21 @@ class StatsCommand extends Command
 		}
 		$text = Folding::formatUserStats($userStats);
 
-		$replyMarkup->inline_keyboard[] = $this->addRefreshButton($userId);
+		$replyMarkup->inline_keyboard[] = $this->addRefreshButton($foldingUserId);
 
-		if (isset($stats->id)) {
-			[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($userStats);
-			$replyMarkup->inline_keyboard[0][] = [
-				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setnick ' . $userStats->id . ' ' . $userStats->name . ' ' . $foldingTeamId . ' ' . $foldingTeamName,
-			];
-		}
+		[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($userStats);
+		$replyMarkup->inline_keyboard[0][] = [
+			'text' => sprintf('%s Set as default', Icons::DEFAULT),
+			'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, $userStats->name, $foldingTeamId, $foldingTeamName),
+		];
 		$this->reply($text, $replyMarkup);
 	}
 
-	private function addRefreshButton($userId) {
+	private function addRefreshButton($foldingUserId) {
 		return [
 			[
-				'text' => Icons::REFRESH . ' Refresh',
-				'callback_data' => '/stats ' . $userId,
+				'text' => sprintf('%s Refresh', Icons::REFRESH),
+				'callback_data' => sprintf('/stats %s', $foldingUserId),
 			],
 		];
 	}
