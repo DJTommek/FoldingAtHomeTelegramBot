@@ -3,16 +3,16 @@
  * Convert all errors to exceptions
  */
 error_reporting(E_ALL);
-set_error_handler('exceptions_error_handler');
+//set_error_handler('exceptions_error_handler');
 
-function exceptions_error_handler($severity, $message, $filename, $lineno) {
-	if (error_reporting() == 0) {
-		return;
-	}
-	if (error_reporting() & $severity) {
-		throw new ErrorException($message, 0, $severity, $filename, $lineno);
-	}
-}
+//function exceptions_error_handler($severity, $message, $filename, $lineno) {
+//	if (error_reporting() == 0) {
+//		return;
+//	}
+//	if (error_reporting() & $severity) {
+//		throw new ErrorException($message, 0, $severity, $filename, $lineno);
+//	}
+//}
 
 DEFINE('FOLDING_STATS_TIMEOUT', 10);
 
@@ -27,6 +27,11 @@ DEFINE('TIME_FORMAT', 'H:i:s');
 require_once __DIR__ . '/../data/config.local.php';
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
+//Tracy\Debugger::enable(Tracy\Debugger::DEVELOPMENT, __DIR__ . '/../data/tracylog/');
+Tracy\Debugger::enable(['213.220.193.103'], __DIR__ . '/../data/tracylog/');
+Tracy\Debugger::$strictMode = true;
+Tracy\Debugger::$logSeverity = E_NOTICE | E_WARNING;
 
 function my_autoloader($className) {
 	$path = str_replace('\\', '/', $className);

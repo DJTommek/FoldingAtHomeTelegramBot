@@ -29,6 +29,9 @@ try {
 foreach ($statuses as $statusName => $statusText) {
 	printf('<li><b>%s</b>: %s</li>', $statusName, $statusText);
 }
-?>
+$a = new FoldingAtHome\RequestUser('DJTommekkkk');
+dd($a, false);
+$b = $a->load();
+dd($b, false);
 
 

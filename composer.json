@@ -1,9 +1,10 @@
 {
-  "require": {
-    "unreal4u/telegram-api": "~3.4",
-	  "ext-json": "*",
-	  "ext-mbstring": "*",
-	  "ext-pdo": "*",
-	  "ext-curl": "*"
-  }
+	"require": {
+		"unreal4u/telegram-api": "~3.4",
+		"ext-json": "*",
+		"ext-mbstring": "*",
+		"ext-pdo": "*",
+		"ext-curl": "*",
+		"tracy/tracy": "v2.7.3"
+	}
 }

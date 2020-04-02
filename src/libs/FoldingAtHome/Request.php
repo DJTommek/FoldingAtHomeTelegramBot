@@ -13,12 +13,16 @@ abstract class Request
 	 */
 	const TIMEOUT = 3;
 
+	const FOLDING_ERROR_NOT_FOUND = 'Not found';
+
 	/**
 	 * @param string $url
 	 * @param array $curlOpts
 	 * @return mixed
 	 * @throws Exceptions\ApiErrorException
 	 * @throws Exceptions\BadResponseException
+	 * @throws Exceptions\ApiTimeoutException
+	 * @throws Exceptions\NotFoundException
 	 */
 	public function fileGetContent(string $url, array $curlOpts = []) {
 		$curl = curl_init($url);
@@ -39,12 +43,16 @@ abstract class Request
 			throw new Exceptions\BadResponseException('Bad API response from "' . $url . '": "' . $responseCode . '".');
 		}
 		try {
-			$jsonResponse = json_decode($body);
-		} catch (\Exception $exception) {
+			$jsonResponse = json_decode($body, false, 512, JSON_THROW_ON_ERROR);
+		} catch (\JsonException $exception) {
 			throw new Exceptions\BadResponseException('Bad API response from "' . $url . '": content is not valid JSON."');
 		}
 		if (isset($jsonResponse->error)) {
-			throw new Exceptions\ApiErrorException($jsonResponse->error);
+			if ($jsonResponse->error === self::FOLDING_ERROR_NOT_FOUND) {
+				throw new Exceptions\NotFoundException();
+			} else {
+				throw new Exceptions\ApiErrorException($jsonResponse->error);
+			}
 		}
 		return $jsonResponse;
 	}

@@ -2,6 +2,7 @@
 
 namespace FoldingAtHome;
 
+use Cassandra\Date;
 use DateTime;
 use Exception;
 
@@ -25,18 +26,18 @@ class User
 	/**
 	 * User constructor.
 	 *
-	 * @param $id
-	 * @param $wus
-	 * @param $credit
-	 * @param $rank
-	 * @param $totalUsers
-	 * @param $active7
-	 * @param $active50
-	 * @param $wusCert
-	 * @param $creditCert
-	 * @param $path
-	 * @param $last
-	 * @param $name
+	 * @param int $id
+	 * @param int $wus
+	 * @param int $credit
+	 * @param int $rank
+	 * @param int $totalUsers
+	 * @param int $active7
+	 * @param int $active50
+	 * @param string $wusCert
+	 * @param string $creditCert
+	 * @param string $path
+	 * @param DateTime $last
+	 * @param string $name
 	 * @param Team[] $teams
 	 * @throws Exceptions\GeneralException
 	 */
