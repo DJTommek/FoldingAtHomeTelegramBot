@@ -61,7 +61,7 @@ class Team extends TeamAbstract
 		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
 		$donors = [];
 		foreach ($json->donors as $donor) {
-			$donors[] = new TeamUser($donor->id, $donor->wus, $donor->credit, $donor->name, $donor->rank ?? null);
+			$donors[] = TeamUser::createFromJson($donor);
 		}
 		return new Team($json->team, $json->wus, $last, $json->active_50, $json->credit, $json->name, $json->url, $json->logo, $json->wus_cert, $json->credit_cert, $json->rank, $json->total_teams, $json->path, $donors);
 	}

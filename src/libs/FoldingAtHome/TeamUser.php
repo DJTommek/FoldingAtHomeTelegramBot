@@ -22,17 +22,9 @@ class TeamUser extends UserAbstract
 
 	/**
 	 * @param $json
-	 * @return User
-	 * @throws Exceptions\GeneralException
-	 * @throws Exception
+	 * @return TeamUser
 	 */
 	public static function createFromJson($json) {
-		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
-		$teams = [];
-		return new TeamUser($json->id, $json->wus, $json->credit, $json->rank, $json->total_users, $json->active_7, $json->active_50, $json->wus_cert, $json->credit_cert, $json->path, $last, $json->name, $teams);
-	}
-
-	public function __get($name) {
-		return $this->{$name};
+		return new TeamUser($json->id, $json->wus, $json->credit, $json->name, $json->rank ?? null);
 	}
 }
