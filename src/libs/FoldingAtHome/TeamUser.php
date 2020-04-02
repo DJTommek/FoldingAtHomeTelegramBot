@@ -14,10 +14,12 @@ class TeamUser extends UserAbstract
 	 * @param int $wus
 	 * @param int $credit
 	 * @param string $name
+	 * @param int $team
 	 * @param int|null $rank
 	 */
-	public function __construct(int $id, int $wus, int $credit, string $name, ?int $rank = null) {
+	public function __construct(int $id, int $wus, int $credit, string $name, int $team, ?int $rank = null) {
 		parent::__construct($id, $wus, $credit, $name, $rank);
+		$this->team = $team;
 	}
 
 	/**
@@ -25,6 +27,6 @@ class TeamUser extends UserAbstract
 	 * @return TeamUser
 	 */
 	public static function createFromJson($json) {
-		return new TeamUser($json->id, $json->wus, $json->credit, $json->name, $json->rank ?? null);
+		return new TeamUser($json->id, $json->wus, $json->credit, $json->name, $json->team, $json->rank ?? null);
 	}
 }
