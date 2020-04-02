@@ -23,7 +23,7 @@ class StatsInline extends Inline
 
 		$stats = Folding::loadUserStats($foldingUser);
 		if (!$stats) {
-			$this->flash(sprintf('%s Error: User doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR), true);
+			$this->flash(sprintf('%s Error: Folding@home API is not responding, try again later.', Icons::ERROR), true);
 			return;
 		}
 

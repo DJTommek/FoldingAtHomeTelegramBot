@@ -31,7 +31,11 @@ class Folding
 	}
 
 	public static function getTeamDataFromUserStats($stats) {
-		return [$stats->teams[0]->team, $stats->teams[0]->name];
+		try {
+			return [$stats->teams[0]->team, $stats->teams[0]->name];
+		} catch (Exception $exception) {
+			return [0, 0];
+		}
 
 		// @TODO It seems, that API is always returning at least one team, even if user is not in any team (in that case it is team ID 0 with name "Default (No team specified)". Needs testing.
 		$foldingTeamId = null;
@@ -40,22 +44,21 @@ class Folding
 			$foldingTeamId = $stats->teams[0]->team;
 			$foldingTeamName = $stats->teams[0]->name;
 		}
-		return [$foldingTeamId, $foldingTeamName];
+		return [0, 0];
 	}
 
 	public static function formatUserStats($stats, $foldingUser) {
 
+		$message = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), htmlentities($foldingUser), TELEGRAM_BOT_NICK) . PHP_EOL;
+
 		// Request error
 		if ($stats === null) {
-			$message = sprintf('%s\'s folding stats from %s:', Folding::formatUserLink($foldingUser), TELEGRAM_BOT_NICK) . PHP_EOL;
-			$message .= sprintf('%s <b>Error</b>: User doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR) . PHP_EOL;
+			$message .= sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR);
 			return $message;
 		}
 
 		// API error
-		// @TODO unreachable state because returning 404 makes $stats = null
 		if (isset($stats->error)) {
-			$message = sprintf('<a href="%s">%s</a>\'s folding stats from %s:', Folding::getUserUrl($foldingUser), $foldingUser, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$message .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
 			return $message;
 		}

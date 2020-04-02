@@ -13,15 +13,25 @@ class Utils
 	}
 
 	static function requestJson(string $url, int $timeout = FOLDING_STATS_TIMEOUT) {
-		$stream_context = stream_context_create([
-			'http' => [
-				'timeout' => $timeout,
-			]
-		]);
-		$response = @file_get_contents($url, false, $stream_context);
-		if ($response === null) {
+		try {
+			return json_decode(fileGetContent($url, [
+				CURLOPT_CONNECTTIMEOUT => $timeout,
+				CURLOPT_TIMEOUT => $timeout,
+			]));
+		} catch (Exception $exception) {
+			Logs::write(sprintf('Exception while requesting URL "%s": %s', $url, $exception->getMessage()));
 			return null;
 		}
-		return json_decode($response);
+
+//		$stream_context = stream_context_create([
+//			'http' => [
+//				'timeout' => $timeout,
+//			]
+//		]);
+//		$response = @file_get_contents($url, false, $stream_context);
+//		if ($response === null) {
+//			return null;
+//		}
+//		return json_decode($response);
 	}
 }

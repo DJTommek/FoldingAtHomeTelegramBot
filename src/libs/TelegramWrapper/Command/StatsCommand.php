@@ -61,7 +61,7 @@ class StatsCommand extends Command
 				],
 			],
 		];
-		if ($stats) {
+		if (isset($stats->id)) {
 			[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($stats);
 			$replyMarkup->inline_keyboard[0][] = [
 				'text' => Icons::DEFAULT . ' Set as default',

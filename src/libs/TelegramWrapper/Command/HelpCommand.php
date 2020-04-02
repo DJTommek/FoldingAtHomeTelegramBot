@@ -25,7 +25,7 @@ class HelpCommand extends Command
 		}
 		$text .= PHP_EOL;
 
-		$text .= sprintf(' /stats &lt;nick or ID&gt; - load specific user statistics') . PHP_EOL;
+		$text .= sprintf(' /stats &lt;nick, ID or URL&gt; - load specific user statistics') . PHP_EOL;
 //		$text .= sprintf(' /setNick &lt;nick or ID or URL&gt; - set default nick to different than your Telegram username.') . PHP_EOL;
 		$text .= PHP_EOL;
 		$text .= sprintf(Icons::TEAM . ' <b>Team commands</b>:') . PHP_EOL;
