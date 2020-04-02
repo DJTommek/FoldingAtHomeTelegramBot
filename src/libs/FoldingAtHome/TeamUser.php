@@ -7,6 +7,8 @@ use Exception;
 
 class TeamUser extends UserAbstract
 {
+	protected $team;
+
 	/**
 	 * TeamUser constructor.
 	 *
