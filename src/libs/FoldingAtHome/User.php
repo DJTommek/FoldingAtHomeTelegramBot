@@ -2,7 +2,6 @@
 
 namespace FoldingAtHome;
 
-use Cassandra\Date;
 use DateTime;
 use Exception;
 
@@ -38,12 +37,12 @@ class User
 	 * @param string $path
 	 * @param DateTime $last
 	 * @param string $name
-	 * @param Team[] $teams
+	 * @param UserTeam[] $teams
 	 * @throws Exceptions\GeneralException
 	 */
 	public function __construct(int $id, int $wus, int $credit, int $rank, int $totalUsers, int $active7, int $active50, string $wusCert, string $creditCert, string $path, DateTime $last, string $name, array $teams) {
 		foreach ($teams as $team) {
-			if ($team instanceof Team === false) {
+			if ($team instanceof UserTeam === false) {
 				throw new Exceptions\GeneralException('Parameter $team is not instance of Team');
 			}
 		}
@@ -72,7 +71,7 @@ class User
 		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
 		$teams = [];
 		foreach ($json->teams as $team) {
-			$teams[] = Team::createFromJson($team);
+			$teams[] = UserTeam::createFromJson($team);
 		}
 		return new User($json->id, $json->wus, $json->credit, $json->rank, $json->total_users, $json->active_7, $json->active_50, $json->wus_cert, $json->credit_cert, $json->path, $last, $json->name, $teams);
 	}

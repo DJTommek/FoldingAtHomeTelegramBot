@@ -5,39 +5,42 @@ namespace FoldingAtHome;
 use DateTime;
 use Exception;
 
-class Team
+class Team extends TeamAbstract
 {
-	public $id; // in API it is property "team"
-
-	private $wus;
-	private $last;
-	private $uid;
-	private $active50;
-	private $active7;
-	private $credit;
-	private $name;
+	private $url;
+	private $logo;
+	private $wusCert;
+	private $creditCert;
+	private $rank;
+	private $totalTeams;
+	private $path;
 
 	/**
 	 * Team constructor.
 	 *
-	 * @param $id
-	 * @param $wus
-	 * @param $last
-	 * @param $uid
-	 * @param $active50
-	 * @param $active7
-	 * @param $credit
-	 * @param $name
+	 * @param int $id
+	 * @param int $wus
+	 * @param DateTime $last
+	 * @param int $active50
+	 * @param int $credit
+	 * @param string $name
+	 * @param $url
+	 * @param $logo
+	 * @param $wusCert
+	 * @param $creditCert
+	 * @param $rank
+	 * @param $totalTeams
+	 * @param $path
 	 */
-	public function __construct(int $id, int $wus, DateTime $last, int $uid, int $active50, int $active7, int $credit, string $name) {
-		$this->id = $id;
-		$this->wus = $wus;
-		$this->last = $last;
-		$this->uid = $uid;
-		$this->active50 = $active50;
-		$this->active7 = $active7;
-		$this->credit = $credit;
-		$this->name = $name;
+	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name, string $url, string $logo, string $wusCert, string $creditCert, int $rank, int $totalTeams, string $path) {
+		parent::__construct($id, $wus, $last, $active50, $credit, $name);
+		$this->url = $url;
+		$this->logo = $logo;
+		$this->wusCert = $wusCert;
+		$this->creditCert = $creditCert;
+		$this->rank = $rank;
+		$this->totalTeams = $totalTeams;
+		$this->path = $path;
 	}
 
 	/**
@@ -47,7 +50,7 @@ class Team
 	 */
 	public static function createFromJson($json) {
 		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
-		return new Team($json->team, $json->wus, $last, $json->uid, $json->active_50, $json->active_7, $json->credit, $json->name);
+		return new Team($json->team, $json->wus, $last, $json->active_50, $json->credit, $json->name, $json->url, $json->logo, $json->wus_cert, $json->credit_cert, $json->rank, $json->total_teams, $json->path);
 	}
 
 	public function __get($name) {

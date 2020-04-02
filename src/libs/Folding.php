@@ -79,29 +79,14 @@ class Folding
 		return $message;
 	}
 
-	public static function formatTeamStats($stats, $foldingTeamId) {
-		// Request error
-		if ($stats === null) {
-			$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
-			$message .= sprintf('%s <b>Error</b>: Team doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR) . PHP_EOL;
-			return $message;
-		}
-		// API error
-		// @TODO unreachable state because returning 404 makes $stats = null
-		if (isset($stats->error)) {
-			$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($foldingTeamId), $foldingTeamId, TELEGRAM_BOT_NICK) . PHP_EOL;
-			$message .= sprintf('%s <b>Error</b> from Folding@home: <i>%s</i>', Icons::ERROR, htmlentities($stats->error)) . PHP_EOL;
-			return $message;
-		}
-
-		// Success!
-		$message = sprintf('<a href="%s">%s</a>\'s team folding stats:', self::getTeamUrl($foldingTeamId), $stats->name) . PHP_EOL;
+	public static function formatTeamStats(\FoldingAtHome\Team $stats) {
+		$message = sprintf('<a href="%s">%s</a>\'s team folding stats:', self::getTeamUrl($stats->id), $stats->name) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
 				Icons::STATS_CREDIT,
 				Utils::numberFormat($stats->credit),
 				Icons::STATS_CREDIT_RANK,
 				Utils::numberFormat($stats->rank),
-				Utils::numberFormat($stats->total_teams),
+				Utils::numberFormat($stats->totalTeams),
 				Icons::AVERAGE,
 				Utils::numberFormat($stats->credit / count($stats->donors))
 			) . PHP_EOL;
@@ -113,7 +98,7 @@ class Folding
 				$stats->wusCert . '&cachebuster=' . $stats->last->getTimestamp()
 			) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
-		$message .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last) . PHP_EOL;
+		$message .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last->format(DATE_FORMAT . ' ' . TIME_FORMAT)) . PHP_EOL;
 		$message .= sprintf('%s‍ <b>Active client(s)</b>: %s (last 50 days, %s %s / user)',
 				Icons::STATS_ACTIVE_CLIENTS,
 				Utils::numberFormat($stats->active50),

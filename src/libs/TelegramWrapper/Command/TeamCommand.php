@@ -3,7 +3,14 @@
 namespace TelegramWrapper\Command;
 
 use \Folding;
+use FoldingAtHome\Exceptions\ApiErrorException;
+use FoldingAtHome\Exceptions\ApiTimeoutException;
+use FoldingAtHome\Exceptions\GeneralException;
+use FoldingAtHome\Exceptions\NotFoundException;
+use FoldingAtHome\RequestTeam;
+use FoldingAtHome\RequestUser;
 use \Icons;
+use Tracy\Debugger;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 
 class TeamCommand extends Command
@@ -15,6 +22,8 @@ class TeamCommand extends Command
 
 		$exampleText = sprintf('%s 239186', $command) . PHP_EOL;
 		$exampleText .= sprintf('%s https://stats.foldingathome.org/team/239186', $command) . PHP_EOL;
+
+		$replyMarkup = new Markup();
 
 		if (isset($this->params[0])) {
 			// parameter is URL with donor
@@ -44,25 +53,40 @@ class TeamCommand extends Command
 		}
 
 		$this->sendAction();
-		$stats = Folding::loadTeamStats($foldingTeamId);
-		$text = Folding::formatTeamStats($stats, $foldingTeamId);
+		try {
+			$teamStats = (new RequestTeam($foldingTeamId))->load();
+		} catch (NotFoundException $exception) {
+			$this->reply(sprintf('%s User <b>%s</b> not found', Icons::ERROR, htmlentities($foldingTeamId)), $replyMarkup);
+			return;
+		} catch (ApiErrorException $exception) {
+			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
+			return;
+		} catch (ApiTimeoutException $exception) {
+			$replyMarkup->inline_keyboard[] = $this->addRefreshButton($foldingTeamId);
+			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
+			return;
+		} catch (GeneralException $exception) {
+			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
+			throw $exception;
+		}
+		$text = Folding::formatTeamStats($teamStats);
 
 		$replyMarkup = new Markup();
-		$replyMarkup->inline_keyboard = [
-			[
-				[
-					'text' => Icons::REFRESH . ' Refresh',
-					'callback_data' => '/team ' . $foldingTeamId,
-				],
-			],
+		$replyMarkup->inline_keyboard[] = $this->addRefreshButton($teamStats->id);
+		$replyMarkup->inline_keyboard[0][] = [
+			'text' => Icons::DEFAULT . ' Set as default',
+			'callback_data' => '/setteam ' . $teamStats->id . ' ' . $teamStats->name,
 		];
-		if ($stats) {
-			$replyMarkup->inline_keyboard[0][] = [
-				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setteam ' . $stats->team . ' ' . $stats->name,
-			];
-		}
 
 		$this->reply($text, $replyMarkup);
+	}
+
+	private function addRefreshButton($foldingUserId) {
+		return [
+			[
+				'text' => sprintf('%s Refresh', Icons::REFRESH),
+				'callback_data' => sprintf('/team %s', $foldingUserId),
+			],
+		];
 	}
 }
