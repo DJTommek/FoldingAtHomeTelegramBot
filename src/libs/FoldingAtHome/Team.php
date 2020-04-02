@@ -7,13 +7,14 @@ use Exception;
 
 class Team extends TeamAbstract
 {
-	private $url;
-	private $logo;
-	private $wusCert;
-	private $creditCert;
-	private $rank;
-	private $totalTeams;
-	private $path;
+	protected $url;
+	protected $logo;
+	protected $wusCert;
+	protected $creditCert;
+	protected $rank;
+	protected $totalTeams;
+	protected $path;
+	protected $donors = [];
 
 	/**
 	 * Team constructor.
@@ -31,9 +32,16 @@ class Team extends TeamAbstract
 	 * @param $rank
 	 * @param $totalTeams
 	 * @param $path
+	 * @param User[] $donors
+	 * @throws Exceptions\GeneralException
 	 */
-	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name, string $url, string $logo, string $wusCert, string $creditCert, int $rank, int $totalTeams, string $path) {
+	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name, string $url, string $logo, string $wusCert, string $creditCert, int $rank, int $totalTeams, string $path, array $donors) {
 		parent::__construct($id, $wus, $last, $active50, $credit, $name);
+		foreach ($donors as $donor) {
+			if ($donor instanceof TeamUser === false) {
+				throw new Exceptions\GeneralException('Some parameter(s) of $donors is not instance of TeamUser');
+			}
+		}
 		$this->url = $url;
 		$this->logo = $logo;
 		$this->wusCert = $wusCert;
@@ -41,6 +49,7 @@ class Team extends TeamAbstract
 		$this->rank = $rank;
 		$this->totalTeams = $totalTeams;
 		$this->path = $path;
+		$this->donors = $donors;
 	}
 
 	/**
@@ -50,10 +59,10 @@ class Team extends TeamAbstract
 	 */
 	public static function createFromJson($json) {
 		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
-		return new Team($json->team, $json->wus, $last, $json->active_50, $json->credit, $json->name, $json->url, $json->logo, $json->wus_cert, $json->credit_cert, $json->rank, $json->total_teams, $json->path);
-	}
-
-	public function __get($name) {
-		return $this->{$name};
+		$donors = [];
+		foreach ($json->donors as $donor) {
+			$donors[] = new TeamUser($donor->id, $donor->wus, $donor->credit, $donor->name, $donor->rank ?? null);
+		}
+		return new Team($json->team, $json->wus, $last, $json->active_50, $json->credit, $json->name, $json->url, $json->logo, $json->wus_cert, $json->credit_cert, $json->rank, $json->total_teams, $json->path, $donors);
 	}
 }

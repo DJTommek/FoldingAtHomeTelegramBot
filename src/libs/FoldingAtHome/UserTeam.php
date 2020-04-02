@@ -8,7 +8,7 @@ use Exception;
 class UserTeam extends TeamAbstract
 {
 	protected $uid;
-	protected  $active7;
+	protected $active7;
 
 	/**
 	 * Team constructor.

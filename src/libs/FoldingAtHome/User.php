@@ -5,22 +5,22 @@ namespace FoldingAtHome;
 use DateTime;
 use Exception;
 
-class User
+class User extends UserAbstract
 {
-	private $id;
+	protected $id;
 
-	private $wus;
-	private $credit;
-	private $rank;
-	private $totalUsers;
-	private $active7;
-	private $active50;
-	private $wusCert;
-	private $creditCert;
-	private $path;
-	private $last;
-	private $name;
-	private $teams = [];
+	protected $wus;
+	protected $credit;
+	protected $rank;
+	protected $totalUsers;
+	protected $active7;
+	protected $active50;
+	protected $wusCert;
+	protected $creditCert;
+	protected $path;
+	protected $last;
+	protected $name;
+	protected $teams = [];
 
 	/**
 	 * User constructor.
@@ -41,15 +41,12 @@ class User
 	 * @throws Exceptions\GeneralException
 	 */
 	public function __construct(int $id, int $wus, int $credit, int $rank, int $totalUsers, int $active7, int $active50, string $wusCert, string $creditCert, string $path, DateTime $last, string $name, array $teams) {
+		parent::__construct($id, $wus, $credit, $name, $rank);
 		foreach ($teams as $team) {
 			if ($team instanceof UserTeam === false) {
-				throw new Exceptions\GeneralException('Parameter $team is not instance of Team');
+				throw new Exceptions\GeneralException('Some parameter(s) of $teams is not instance of UserTeam');
 			}
 		}
-		$this->id = $id;
-		$this->wus = $wus;
-		$this->credit = $credit;
-		$this->rank = $rank;
 		$this->totalUsers = $totalUsers;
 		$this->active7 = $active7;
 		$this->active50 = $active50;
@@ -57,7 +54,6 @@ class User
 		$this->creditCert = $creditCert;
 		$this->path = $path;
 		$this->last = $last;
-		$this->name = $name;
 		$this->teams = $teams;
 	}
 
