@@ -10,14 +10,14 @@ class RequestUser extends Request
 	 * RequestUser constructor.
 	 *
 	 * @param $userIdentificator
-	 * @throws GeneralException
+	 * @throws Exceptions\BadRequestException
 	 */
 	public function __construct($userIdentificator) {
 		$paramType = gettype($userIdentificator);
 		if ($paramType === 'string' || $paramType === 'int') {
 			$this->id = $userIdentificator;
 		} else {
-			throw new GeneralException('Invalid parameter, $userIdentificator has to be string for donor name or int for donor ID.');
+			throw new Exceptions\BadRequestException('Invalid parameter, $userIdentificator has to be string for donor name or int for donor ID.');
 		}
 	}
 
@@ -40,9 +40,10 @@ class RequestUser extends Request
 	 * @return User
 	 * @throws Exceptions\ApiErrorException
 	 * @throws Exceptions\ApiTimeoutException
+	 * @throws Exceptions\BadRequestException
 	 * @throws Exceptions\BadResponseException
-	 * @throws Exceptions\NotFoundException
 	 * @throws Exceptions\GeneralException
+	 * @throws Exceptions\NotFoundException
 	 */
 	public function load(array $curlOpts = []) {
 		$apiUrl = $this->getUrl($this->id, true);

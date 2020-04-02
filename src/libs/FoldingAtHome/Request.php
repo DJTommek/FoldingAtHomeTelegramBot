@@ -23,6 +23,7 @@ abstract class Request
 	 * @throws Exceptions\BadResponseException
 	 * @throws Exceptions\ApiTimeoutException
 	 * @throws Exceptions\NotFoundException
+	 * @throws Exceptions\BadRequestException
 	 */
 	public function fileGetContent(string $url, array $curlOpts = []) {
 		$curl = curl_init($url);
@@ -34,7 +35,7 @@ abstract class Request
 			if (curl_errno($curl) === 28) {
 				throw new Exceptions\ApiTimeoutException('API request timeouted.');
 			} else {
-				throw new Exceptions\BadResponseException('CURL error ' . curl_errno($curl));
+				throw new Exceptions\BadRequestException('API request CURL error ' . curl_errno($curl));
 			}
 		}
 		list($header, $body) = explode("\r\n\r\n", $curlResponse, 2);
