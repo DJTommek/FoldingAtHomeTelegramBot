@@ -3,6 +3,11 @@
 namespace TelegramWrapper\Inline;
 
 use \Folding;
+use FoldingAtHome\Exceptions\ApiErrorException;
+use FoldingAtHome\Exceptions\ApiTimeoutException;
+use FoldingAtHome\Exceptions\GeneralException;
+use FoldingAtHome\Exceptions\NotFoundException;
+use FoldingAtHome\RequestTeam;
 use \Icons;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 
@@ -18,31 +23,34 @@ class TeamInline extends Inline
 			return;
 		}
 
-		$stats = Folding::loadTeamStats($foldingTeamId);
-		if (!$stats) {
-			$this->flash(sprintf('%s Error: Team doesn\'t exists or Folding@home API is not available, try again later.', Icons::ERROR), true);
+		try {
+			$teamStats = (new RequestTeam($foldingTeamId))->load();
+		} catch (NotFoundException $exception) {
+			$this->flash(sprintf('%s Team %s not found', Icons::ERROR, htmlentities($foldingTeamId)));
 			return;
+		} catch (ApiErrorException $exception) {
+			$this->flash(sprintf('%s Folding@home API responded with error: %s', Icons::ERROR, htmlentities($exception->getMessage())));
+			return;
+		} catch (ApiTimeoutException $exception) {
+			$this->flash(sprintf('%s Folding@home API is not responding, try again later.', Icons::ERROR));
+			return;
+		} catch (GeneralException $exception) {
+			$this->flash(sprintf('%s Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR));
+			throw $exception;
 		}
-
-		$text = Folding::formatTeamStats($stats, $foldingTeamId);
+		$text = Folding::formatTeamStats($teamStats);
 
 		$replyMarkup = new Markup();
-		$replyMarkup->inline_keyboard = [
+		$replyMarkup->inline_keyboard[] = [
 			[
-				[
-					'text' => Icons::REFRESH . ' Refresh',
-					'callback_data' => '/team ' . $foldingTeamId,
-				],
+				'text' => sprintf('%s Refresh', Icons::REFRESH),
+				'callback_data' => sprintf('/team %s', $foldingTeamId),
+			], [
+				'text' => Icons::DEFAULT . ' Set as default',
+				'callback_data' => '/setteam ' . $teamStats->id . ' ' . $teamStats->name,
 			],
 		];
-		if ($stats) {
-			$replyMarkup->inline_keyboard[0][] = [
-				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setteam ' . $stats->team . ' ' . $stats->name,
-			];
-		}
-
 		$this->replyButton($text, $replyMarkup);
-		$this->flash('Team stats were refreshed!');
+		$this->flash(sprintf('%s Team stats were refreshed!', Icons::SUCCESS));
 	}
 }

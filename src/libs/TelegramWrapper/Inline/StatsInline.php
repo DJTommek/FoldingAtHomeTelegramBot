@@ -44,16 +44,15 @@ class StatsInline extends Inline
 		$text = Folding::formatUserStats($userStats);
 
 		$replyMarkup = new Markup();
+		[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($userStats);
 		$replyMarkup->inline_keyboard[] = [
 			[
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
 				'callback_data' => sprintf('/stats %s', $foldingUserId),
+			], [
+				'text' => sprintf('%s Set as default', Icons::DEFAULT),
+				'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, $userStats->name, $foldingTeamId, $foldingTeamName),
 			],
-		];
-		[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($userStats);
-		$replyMarkup->inline_keyboard[0][] = [
-			'text' => sprintf('%s Set as default', Icons::DEFAULT),
-			'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, $userStats->name, $foldingTeamId, $foldingTeamName),
 		];
 		$this->replyButton($text, $replyMarkup);
 		$this->flash(sprintf('%s User stats were refreshed!', Icons::SUCCESS));

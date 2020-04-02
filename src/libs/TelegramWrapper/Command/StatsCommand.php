@@ -9,6 +9,7 @@ use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
 use FoldingAtHome\RequestUser;
 use \Icons;
+use Tracy\Debugger;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Button;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 use unreal4u\TelegramAPI\Telegram\Types\KeyboardButton;
@@ -65,7 +66,9 @@ class StatsCommand extends Command
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
 			return;
 		} catch (ApiTimeoutException $exception) {
-			$replyMarkup->inline_keyboard[] = $this->addRefreshButton($foldingUserId);
+			$replyMarkup->inline_keyboard[] = [
+				$this->addRefreshButton($foldingUserId)
+			];
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
 			return;
 		} catch (GeneralException $exception) {
@@ -74,22 +77,21 @@ class StatsCommand extends Command
 		}
 		$text = Folding::formatUserStats($userStats);
 
-		$replyMarkup->inline_keyboard[] = $this->addRefreshButton($foldingUserId);
-
 		[$foldingTeamId, $foldingTeamName] = Folding::getTeamDataFromUserStats($userStats);
-		$replyMarkup->inline_keyboard[0][] = [
-			'text' => sprintf('%s Set as default', Icons::DEFAULT),
-			'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, $userStats->name, $foldingTeamId, $foldingTeamName),
+		$replyMarkup->inline_keyboard[] = [
+			$this->addRefreshButton($foldingUserId),
+			[
+				'text' => sprintf('%s Set as default', Icons::DEFAULT),
+				'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, $userStats->name, $foldingTeamId, $foldingTeamName),
+			]
 		];
 		$this->reply($text, $replyMarkup);
 	}
 
 	private function addRefreshButton($foldingUserId) {
 		return [
-			[
-				'text' => sprintf('%s Refresh', Icons::REFRESH),
-				'callback_data' => sprintf('/stats %s', $foldingUserId),
-			],
+			'text' => sprintf('%s Refresh', Icons::REFRESH),
+			'callback_data' => sprintf('/stats %s', $foldingUserId),
 		];
 	}
 }

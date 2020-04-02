@@ -56,7 +56,7 @@ class TeamCommand extends Command
 		try {
 			$teamStats = (new RequestTeam($foldingTeamId))->load();
 		} catch (NotFoundException $exception) {
-			$this->reply(sprintf('%s User <b>%s</b> not found', Icons::ERROR, htmlentities($foldingTeamId)), $replyMarkup);
+			$this->reply(sprintf('%s Team <b>%s</b> not found', Icons::ERROR, htmlentities($foldingTeamId)), $replyMarkup);
 			return;
 		} catch (ApiErrorException $exception) {
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);

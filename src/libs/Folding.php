@@ -32,7 +32,7 @@ class Folding
 
 	public static function getTeamDataFromUserStats($stats) {
 		try {
-			return [$stats->teams[0]->team, $stats->teams[0]->name];
+			return [$stats->teams[0]->id, $stats->teams[0]->name];
 		} catch (Exception $exception) {
 			return [0, 0];
 		}
