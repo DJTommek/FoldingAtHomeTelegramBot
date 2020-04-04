@@ -11,6 +11,7 @@ class Database
 		$dsn = 'mysql:host=' . $db_server . ';dbname=' . $db_schema . ';charset=' . $db_charset;
 		$this->db = new PDO($dsn, $db_user, $db_pass);
 		$this->db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+		$this->db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	}
 
