@@ -32,7 +32,7 @@ class HelpCommand extends Command
 
 		$text .= sprintf(' /team - load your team statistics.');
 		if ($user->getFoldingTeamId()) {
-			$text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (Folding::getTeamUrl($user->getFoldingTeamId())), $user->getFoldingName());
+			$text .= sprintf(' (currently set to team <a href="%s">%s</a>)', (Folding::getTeamUrl($user->getFoldingTeamId())), $user->getFoldingTeamName());
 		}
 		$text .= PHP_EOL;
 

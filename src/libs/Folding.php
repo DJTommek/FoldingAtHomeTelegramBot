@@ -123,7 +123,7 @@ class Folding
 		return sprintf('<a href="%s">%s</a>', self::getUserUrl($user), $user);
 	}
 
-	public static function formatTeamStatsTop($donors, $count = 5) {
+	public static function formatTeamStatsTop(array $donors, $count = 5) {
 		$showing = min(count($donors), $count);
 		if ($showing === 0) {
 			return null;

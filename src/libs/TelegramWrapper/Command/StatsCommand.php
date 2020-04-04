@@ -82,7 +82,7 @@ class StatsCommand extends Command
 			$this->addRefreshButton($foldingUserId),
 			[
 				'text' => sprintf('%s Set as default', Icons::DEFAULT),
-				'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, $userStats->name, $foldingTeamId, $foldingTeamName),
+				'callback_data' => sprintf('/setnick %d %s %d %s', $userStats->id, base64_encode($userStats->name), $foldingTeamId, base64_encode($foldingTeamName)),
 			]
 		];
 		$this->reply($text, $replyMarkup);

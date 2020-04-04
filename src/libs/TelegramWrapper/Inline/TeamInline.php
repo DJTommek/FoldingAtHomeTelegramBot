@@ -44,10 +44,10 @@ class TeamInline extends Inline
 		$replyMarkup->inline_keyboard[] = [
 			[
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
-				'callback_data' => sprintf('/team %s', $foldingTeamId),
+				'callback_data' => sprintf('/team %d', $foldingTeamId),
 			], [
 				'text' => Icons::DEFAULT . ' Set as default',
-				'callback_data' => '/setteam ' . $teamStats->id . ' ' . $teamStats->name,
+				'callback_data' => sprintf('/setteam %d %s', $teamStats->id, base64_encode($teamStats->name)),
 			],
 		];
 		$this->replyButton($text, $replyMarkup);

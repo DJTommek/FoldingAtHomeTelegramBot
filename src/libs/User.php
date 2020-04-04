@@ -45,6 +45,10 @@ class User
 		return $this->db->query('SELECT * FROM fahtb_user WHERE user_telegram_id = ?', $telegramId)->fetchAll()[0];
 	}
 
+	public function updateTeam(int $foldingTeamId, string $foldingTeamName) {
+		return $this->update(null, null, null, $foldingTeamId, $foldingTeamName);
+	}
+
 	public function update(?string $telegramUsername = null, ?int $foldingId = null, ?string $foldingName = null, ?int $teamId = null, ?string $teamName = null) {
 		$query = 'UPDATE fahtb_user SET ';
 		$queries = [];
