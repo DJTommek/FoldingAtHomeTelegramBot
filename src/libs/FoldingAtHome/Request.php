@@ -46,7 +46,7 @@ abstract class Request
 		try {
 			$jsonResponse = json_decode($body, false, 512, JSON_THROW_ON_ERROR);
 		} catch (\JsonException $exception) {
-			throw new Exceptions\BadResponseException('Bad API response from "' . $url . '": content is not valid JSON."');
+			throw new Exceptions\BadResponseException(sprintf('Bad API response from "%s": content is not valid JSON, error: "%s"', $url, $exception->getMessage()));
 		}
 		if (isset($jsonResponse->error)) {
 			if ($jsonResponse->error === self::FOLDING_ERROR_NOT_FOUND) {

@@ -16,16 +16,16 @@ class TeamAbstract
 	protected $name;
 
 	/**
-	 * Team constructor.
+	 * TeamAbstract constructor.
 	 *
-	 * @param $id
-	 * @param $wus
-	 * @param $last
-	 * @param $active50
-	 * @param $credit
-	 * @param $name
+	 * @param int $id
+	 * @param int $wus
+	 * @param DateTime|null $last
+	 * @param int $active50
+	 * @param int $credit
+	 * @param string $name
 	 */
-	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name) {
+	public function __construct(int $id, int $wus, ?DateTime $last, int $active50, int $credit, string $name) {
 		$this->id = $id;
 		$this->wus = $wus;
 		$this->last = $last;

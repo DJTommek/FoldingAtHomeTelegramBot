@@ -11,18 +11,18 @@ class UserTeam extends TeamAbstract
 	protected $active7;
 
 	/**
-	 * Team constructor.
+	 * UserTeam constructor.
 	 *
-	 * @param $id
-	 * @param $wus
-	 * @param $last
-	 * @param $uid
-	 * @param $active50
-	 * @param $active7
-	 * @param $credit
-	 * @param $name
+	 * @param int $id
+	 * @param int $wus
+	 * @param DateTime|null $last
+	 * @param int $active50
+	 * @param int $active7
+	 * @param int $credit
+	 * @param string $name
+	 * @param int $uid
 	 */
-	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $active7, int $credit, string $name, int $uid) {
+	public function __construct(int $id, int $wus, ?DateTime $last, int $active50, int $active7, int $credit, string $name, int $uid) {
 		parent::__construct($id, $wus, $last, $active50, $credit, $name);
 		$this->uid = $uid;
 		$this->active7 = $active7;
@@ -34,7 +34,7 @@ class UserTeam extends TeamAbstract
 	 * @throws Exception
 	 */
 	public static function createFromJson($json) {
-		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
+		$last = isset($json->last) ? new DateTime($json->last, new \DateTimeZone('UTC')) : null;
 		return new UserTeam($json->team, $json->wus, $last, $json->active_50, $json->active_7, $json->credit, $json->name, $json->uid);
 	}
 

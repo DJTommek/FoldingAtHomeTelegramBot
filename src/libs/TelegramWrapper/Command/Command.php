@@ -5,6 +5,7 @@ namespace TelegramWrapper\Command;
 
 use TelegramWrapper\Telegram;
 use Tracy\Debugger;
+use Tracy\ILogger;
 use unreal4u\TelegramAPI\Telegram\Methods\AnswerCallbackQuery;
 use unreal4u\TelegramAPI\Telegram\Methods\SendChatAction;
 
@@ -56,9 +57,11 @@ abstract class Command
 
 		$promise->then(
 			function ($response) {
+				Debugger::log($response);
 				Debugger::log('TG API Request successfull. Response: ' . $response);
 			},
 			function (\Exception $exception) {
+				Debugger::log(sprintf('Error while API request: "%s"', $exception->getMessage()), ILogger::EXCEPTION);
 				throw $exception;
 			}
 		);

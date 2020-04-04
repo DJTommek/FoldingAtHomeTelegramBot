@@ -53,23 +53,23 @@ class User
 		$query = 'UPDATE fahtb_user SET ';
 		$queries = [];
 		$params = [];
-		if ($telegramUsername) {
+		if (is_string($telegramUsername)) {
 			$queries[] = 'user_telegram_name = ?';
 			$params[] = $telegramUsername;
 		}
-		if ($foldingId) {
+		if (is_int($foldingId)) {
 			$queries[] = 'user_folding_id = ?';
 			$params[] = $foldingId;
 		}
-		if ($foldingName) {
+		if (is_string($foldingName)) {
 			$queries[] = 'user_folding_name = ?';
 			$params[] = $foldingName;
 		}
-		if ($teamId) {
+		if (is_int($teamId)) {
 			$queries[] = 'user_folding_team_id = ?';
 			$params[] = $teamId;
 		}
-		if ($teamName) {
+		if (is_string($teamName)) {
 			$queries[] = 'user_folding_team_name = ?';
 			$params[] = $teamName;
 		}
