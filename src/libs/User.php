@@ -37,7 +37,10 @@ class User
 	}
 
 	public function register(int $telegramId, ?string $telegramUsername = null) {
-		$this->db->query('INSERT INTO fahtb_user (user_telegram_id, user_telegram_name, user_folding_name) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE user_telegram_name = ?', $telegramId, $telegramUsername, $telegramUsername, $telegramUsername);
+		$this->db->query('INSERT INTO fahtb_user (user_telegram_id, user_telegram_name, user_folding_name) VALUES (?, ?, ?) 
+			ON DUPLICATE KEY UPDATE user_telegram_name = ?, user_last_update = NOW()',
+			$telegramId, $telegramUsername, $telegramUsername, $telegramUsername
+		);
 		return $this->load($telegramId);
 	}
 
