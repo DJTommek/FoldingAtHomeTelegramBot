@@ -48,6 +48,8 @@ class Folding
 	}
 
 	public static function formatUserStats(\FoldingAtHome\User $stats) {
+		$buttons = [];
+
 		$message = sprintf('%s\'s folding stats from %s:', Folding::formatUserLink($stats->name), TELEGRAM_BOT_NICK) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
 				Icons::STATS_CREDIT,
@@ -74,17 +76,19 @@ class Folding
 		// Show top x teams
 		if (count($stats->teams) >= 1) {
 			$message .= PHP_EOL;
-			$message .= Folding::formatUserTeams($stats);
+			[$formatUserTeamsMessage, $buttons] = Folding::formatUserTeams($stats);
+			$message .= $formatUserTeamsMessage;
 		}
 		$message .= PHP_EOL;
 
 		$message .= sprintf('Loaded %s UTC',
 				gmdate(DATE_FORMAT . ' ' . TIME_FORMAT)
 			) . PHP_EOL;
-		return $message;
+		return [$message, $buttons];
 	}
 
 	public static function formatTeamStats(\FoldingAtHome\Team $stats) {
+		$buttons = [];
 		$message = sprintf('<a href="%s">%s</a>\'s team folding stats:', self::getTeamUrl($stats->id), $stats->name) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
 				Icons::STATS_CREDIT,
@@ -114,14 +118,15 @@ class Folding
 		// Show top x donors but only if at least two donors are available
 		if (count($stats->donors) >= 2) {
 			$message .= PHP_EOL;
-			$message .= Folding::formatTeamUsers($stats);
+			[$formatTeamUsersMessage, $buttons] = Folding::formatTeamUsers($stats);
+			$message .= $formatTeamUsersMessage;
 		}
 		$message .= PHP_EOL;
 
 		$message .= sprintf('Loaded %s UTC',
 				gmdate(DATE_FORMAT . ' ' . TIME_FORMAT)
 			) . PHP_EOL;
-		return $message;
+		return [$message, $buttons];
 	}
 
 	public static function formatUserLink($user) {
@@ -135,10 +140,14 @@ class Folding
 	public static function formatUserTeams(FoldingAtHome\User $stats, $count = 5) {
 		$showing = min(count($stats->teams), $count);
 		if ($showing === 0) {
-			return null;
+			return [null, null];
 		}
+		$buttons = [];
 		$message = sprintf('%s <b>%d team(s)</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
-		foreach ($stats->teams as $team) {
+		foreach ($stats->teams as $i => $team) {
+			if ($i >= $showing) {
+				break;
+			}
 			$message .= sprintf('%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
 					self::formatTeamLink($team->id, $team->name),
 					Icons::STATS_WU,
@@ -148,14 +157,21 @@ class Folding
 					Utils::numberFormat($team->credit),
 					Utils::numberFormat(($team->credit / $stats->credit) * 100)
 				) . PHP_EOL;
+			$buttons[] = [
+				[
+					'text' => sprintf('%s %s', Icons::TEAM, $team->name),
+					'callback_data' => sprintf('/team %d', $team->id),
+				],
+			];
 		}
-		return $message;
+		return [$message, $buttons];
 	}
 
 	public static function formatTeamUsers($teamStats, $count = 5) {
+		$buttons = [];
 		$showing = min(count($teamStats->donors), $count);
 		if ($showing === 0) {
-			return null;
+			return [null, null];
 		}
 		$message = sprintf('%s <b>Top %d donors</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
 		foreach ($teamStats->donors as $i => $donor) {
@@ -186,7 +202,13 @@ class Folding
 					Utils::numberFormat($donor->credit),
 					Utils::numberFormat(($donor->credit / $teamStats->credit) * 100)
 				) . PHP_EOL;
+			$buttons[] = [
+				[
+					'text' => sprintf('%s %s', Icons::USER, $donor->name),
+					'callback_data' => sprintf('/stats %d', $donor->id),
+				],
+			];
 		}
-		return $message;
+		return [$message, $buttons];
 	}
 }

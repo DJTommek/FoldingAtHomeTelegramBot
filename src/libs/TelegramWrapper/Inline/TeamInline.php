@@ -38,7 +38,7 @@ class TeamInline extends Inline
 			$this->flash(sprintf('%s Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR));
 			throw $exception;
 		}
-		$text = Folding::formatTeamStats($teamStats);
+		[$text, $buttons] = Folding::formatTeamStats($teamStats);
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = [
@@ -50,6 +50,7 @@ class TeamInline extends Inline
 				'callback_data' => sprintf('/setteam %d %s', $teamStats->id, base64_encode($teamStats->name)),
 			],
 		];
+		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
 		$this->replyButton($text, $replyMarkup);
 		$this->flash(sprintf('%s Team stats were refreshed!', Icons::SUCCESS));
 	}

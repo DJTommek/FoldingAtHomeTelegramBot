@@ -75,7 +75,7 @@ class StatsCommand extends Command
 			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
 			throw $exception;
 		}
-		$text = Folding::formatUserStats($userStats);
+		[$text, $buttons] = Folding::formatUserStats($userStats);
 
 		$replyMarkup->inline_keyboard[] = [
 			$this->addRefreshButton($foldingUserId),
@@ -84,6 +84,7 @@ class StatsCommand extends Command
 				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
 			]
 		];
+		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
 		$this->reply($text, $replyMarkup);
 	}
 

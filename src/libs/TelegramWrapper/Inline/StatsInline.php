@@ -41,7 +41,7 @@ class StatsInline extends Inline
 			$this->flash(sprintf('%s Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), true);
 			throw $exception;
 		}
-		$text = Folding::formatUserStats($userStats);
+		[$text, $buttons] = Folding::formatUserStats($userStats);
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = [
@@ -53,6 +53,7 @@ class StatsInline extends Inline
 				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
 			],
 		];
+		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
 		$this->replyButton($text, $replyMarkup);
 		$this->flash(sprintf('%s User stats were refreshed!', Icons::SUCCESS));
 	}
