@@ -89,7 +89,7 @@ class Folding
 
 	public static function formatTeamStats(\FoldingAtHome\Team $stats) {
 		$buttons = [];
-		$message = sprintf('<a href="%s">%s</a>\'s team folding stats:', self::getTeamUrl($stats->id), $stats->name) . PHP_EOL;
+		$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($stats->id), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
 				Icons::STATS_CREDIT,
 				Utils::numberFormat($stats->credit),
