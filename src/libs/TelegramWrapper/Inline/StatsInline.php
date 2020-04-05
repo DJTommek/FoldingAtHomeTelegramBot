@@ -49,7 +49,7 @@ class StatsInline extends Inline
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
 				'callback_data' => sprintf('/stats %s', $foldingUserId),
 			], [
-				'text' => sprintf('%s Set as default', Icons::DEFAULT),
+				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
 				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
 			],
 		];

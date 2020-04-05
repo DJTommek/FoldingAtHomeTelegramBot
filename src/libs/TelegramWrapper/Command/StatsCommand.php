@@ -80,7 +80,7 @@ class StatsCommand extends Command
 		$replyMarkup->inline_keyboard[] = [
 			$this->addRefreshButton($foldingUserId),
 			[
-				'text' => sprintf('%s Set as default', Icons::DEFAULT),
+				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
 				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
 			]
 		];

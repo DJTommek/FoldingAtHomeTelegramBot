@@ -46,7 +46,7 @@ class TeamInline extends Inline
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
 				'callback_data' => sprintf('/team %d', $foldingTeamId),
 			], [
-				'text' => Icons::DEFAULT . ' Set as default',
+				'text' => Icons::DEFAULT . ' Set team as default',
 				'callback_data' => sprintf('/setteam %d %s', $teamStats->id, base64_encode($teamStats->name)),
 			],
 		];

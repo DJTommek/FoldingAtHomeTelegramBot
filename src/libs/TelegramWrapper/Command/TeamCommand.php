@@ -64,7 +64,7 @@ class TeamCommand extends Command
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = $this->addRefreshButton($teamStats->id);
 		$replyMarkup->inline_keyboard[0][] = [
-			'text' => Icons::DEFAULT . ' Set as default',
+			'text' => Icons::DEFAULT . ' Set tean as default',
 			'callback_data' => '/setteam ' . $teamStats->id . ' ' . base64_encode($teamStats->name),
 		];
 
