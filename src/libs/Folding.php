@@ -71,6 +71,11 @@ class Folding
 				Utils::numberFormat($stats->active50)
 			) . PHP_EOL;
 
+		// Show top x teams
+		if (count($stats->teams) >= 1) {
+			$message .= PHP_EOL;
+			$message .= Folding::formatUserTeams($stats);
+		}
 		$message .= PHP_EOL;
 
 		$message .= sprintf('Loaded %s UTC',
@@ -121,6 +126,30 @@ class Folding
 
 	public static function formatUserLink($user) {
 		return sprintf('<a href="%s">%s</a>', self::getUserUrl($user), $user);
+	}
+
+	public static function formatTeamLink($teamId, $teamName) {
+		return sprintf('<a href="%s">%s</a>', self::getTeamUrl($teamId), $teamName);
+	}
+
+	public static function formatUserTeams(FoldingAtHome\User $stats, $count = 5) {
+		$showing = min(count($stats->teams), $count);
+		if ($showing === 0) {
+			return null;
+		}
+		$message = sprintf('%s <b>%d team(s)</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
+		foreach ($stats->teams as $team) {
+			$message .= sprintf('%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
+					self::formatTeamLink($team->id, $team->name),
+					Icons::STATS_WU,
+					Utils::numberFormat($team->wus),
+					Utils::numberFormat(($team->wus / $stats->wus) * 100),
+					Icons::STATS_CREDIT,
+					Utils::numberFormat($team->credit),
+					Utils::numberFormat(($team->credit / $stats->credit) * 100)
+				) . PHP_EOL;
+		}
+		return $message;
 	}
 
 	public static function formatTeamStatsTop(array $donors, $count = 5) {
