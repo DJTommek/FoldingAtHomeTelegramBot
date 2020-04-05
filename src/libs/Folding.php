@@ -114,7 +114,7 @@ class Folding
 		// Show top x donors but only if at least two donors are available
 		if (count($stats->donors) >= 2) {
 			$message .= PHP_EOL;
-			$message .= Folding::formatTeamStatsTop($stats->donors);
+			$message .= Folding::formatTeamUsers($stats);
 		}
 		$message .= PHP_EOL;
 
@@ -152,13 +152,13 @@ class Folding
 		return $message;
 	}
 
-	public static function formatTeamStatsTop(array $donors, $count = 5) {
-		$showing = min(count($donors), $count);
+	public static function formatTeamUsers($teamStats, $count = 5) {
+		$showing = min(count($teamStats->donors), $count);
 		if ($showing === 0) {
 			return null;
 		}
 		$message = sprintf('%s <b>Top %d donors</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
-		foreach ($donors as $i => $donor) {
+		foreach ($teamStats->donors as $i => $donor) {
 			if ($i >= $showing) {
 				break;
 			}
@@ -176,13 +176,15 @@ class Folding
 					$medal = '';
 					break;
 			}
-			$message .= sprintf('%s%s %s WUs: %s, %s Credit: %s',
+			$message .= sprintf('%s%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
 					$medal,
 					self::formatUserLink($donor->name),
 					Icons::STATS_WU,
 					Utils::numberFormat($donor->wus),
+					Utils::numberFormat(($donor->wus / $teamStats->wus) * 100),
 					Icons::STATS_CREDIT,
-					Utils::numberFormat($donor->credit)
+					Utils::numberFormat($donor->credit),
+					Utils::numberFormat(($donor->credit / $teamStats->credit) * 100)
 				) . PHP_EOL;
 		}
 		return $message;
