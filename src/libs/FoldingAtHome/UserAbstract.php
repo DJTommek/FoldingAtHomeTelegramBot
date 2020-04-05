@@ -7,6 +7,9 @@ use Exception;
 
 class UserAbstract
 {
+	const DEFAULT_NAME = 'Anonymous';
+	const DEFAULT_ID = 1437;
+
 	protected $id;
 
 	protected $wus;

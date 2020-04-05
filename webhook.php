@@ -58,7 +58,7 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 
 	switch ($command ? mb_strtolower($command) : null) {
 		case '/start':
-			new \TelegramWrapper\Command\StartCommand($update, $tgLog, $loop);
+			new \TelegramWrapper\Command\StartCommand($update, $tgLog, $loop, $user);
 			break;
 		case '/help':
 			new \TelegramWrapper\Command\HelpCommand($update, $tgLog, $loop, $user);

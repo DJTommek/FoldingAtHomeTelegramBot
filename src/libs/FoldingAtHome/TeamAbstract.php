@@ -7,6 +7,9 @@ use Exception;
 
 class TeamAbstract
 {
+	const DEFAULT_NAME = 'Default (No team specified)';
+	const DEFAULT_ID = 0;
+
 	protected $id; // in API it is property "team"
 
 	protected $wus;
