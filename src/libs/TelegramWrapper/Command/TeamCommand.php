@@ -33,9 +33,9 @@ class TeamCommand extends Command
 				$param = $this->params[0];
 			}
 			if (is_numeric($param)) {
-				$foldingTeamId = intval($this->params[0]);
+				$foldingTeamId = intval($param);
 			} else {
-				$this->reply(sprintf('%s <b>Error</b>: Parameter is not valid, it has to be Team ID or valid URL. Examples: %s', Icons::ERROR, $exampleText));
+				$this->reply(sprintf('%s <b>Error</b>: Parameter is not valid, it has to be Team ID or valid URL. Examples: %s', Icons::ERROR, PHP_EOL . $exampleText));
 				return;
 			}
 		} else {
