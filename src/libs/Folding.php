@@ -148,14 +148,18 @@ class Folding
 			if ($i >= $showing) {
 				break;
 			}
+
+			$wusPercent = ($team->wus / $stats->wus) * 100;
+			$creditPercent = ($team->credit / $stats->credit) * 100;
+
 			$message .= sprintf('%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
 					self::formatTeamLink($team->id, $team->name),
 					Icons::STATS_WU,
 					Utils::numberFormat($team->wus),
-					Utils::numberFormat(($team->wus / $stats->wus) * 100),
+					Utils::numberFormat($wusPercent, self::getNumberOfDecimalPlaces($wusPercent)),
 					Icons::STATS_CREDIT,
 					Utils::numberFormat($team->credit),
-					Utils::numberFormat(($team->credit / $stats->credit) * 100)
+					Utils::numberFormat($creditPercent, self::getNumberOfDecimalPlaces($creditPercent))
 				) . PHP_EOL;
 			$buttons[] = [
 				[
@@ -192,15 +196,19 @@ class Folding
 					$medal = '';
 					break;
 			}
+
+			$wusPercent = ($donor->wus / $teamStats->wus) * 100;
+			$creditPercent = ($donor->credit / $teamStats->credit) * 100;
+
 			$message .= sprintf('%s%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
 					$medal,
 					self::formatUserLink($donor->name),
 					Icons::STATS_WU,
 					Utils::numberFormat($donor->wus),
-					Utils::numberFormat(($donor->wus / $teamStats->wus) * 100),
+					Utils::numberFormat($wusPercent, self::getNumberOfDecimalPlaces($wusPercent)),
 					Icons::STATS_CREDIT,
 					Utils::numberFormat($donor->credit),
-					Utils::numberFormat(($donor->credit / $teamStats->credit) * 100)
+					Utils::numberFormat($creditPercent, self::getNumberOfDecimalPlaces($creditPercent))
 				) . PHP_EOL;
 			$buttons[] = [
 				[
@@ -210,5 +218,15 @@ class Folding
 			];
 		}
 		return [$message, $buttons];
+	}
+
+	private static function getNumberOfDecimalPlaces(float $number) {
+		if ($number > 10) {
+			return 0;
+		}
+		if ($number > 1) {
+			return 1;
+		}
+		return 2;
 	}
 }
