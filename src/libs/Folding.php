@@ -177,7 +177,7 @@ class Folding
 		if ($showing === 0) {
 			return [null, null];
 		}
-		$message = sprintf('%s <b>Top %d donors</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
+		$message = sprintf('%s <b>Top %d donors of %d members total</b>:', Icons::STATS_TEAM_TOP, $showing, count($teamStats->donors)) . PHP_EOL;
 		foreach ($teamStats->donors as $i => $donor) {
 			if ($i >= $showing) {
 				break;
