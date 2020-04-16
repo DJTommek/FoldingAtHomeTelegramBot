@@ -15,13 +15,8 @@ class User
 	/**
 	 * User constructor.
 	 *
-	 * @param $id
-	 * @param $telegramId
-	 * @param $telegramUsername
-	 * @param $foldingId
-	 * @param $foldingName
-	 * @param $foldingTeamId
-	 * @param $foldingTeamName
+	 * @param int $telegramId
+	 * @param string|null $telegramUsername
 	 */
 	public function __construct(int $telegramId, ?string $telegramUsername = null) {
 		$this->db = Factory::get_database();
@@ -37,7 +32,7 @@ class User
 	}
 
 	public function register(int $telegramId, ?string $telegramUsername = null) {
-		$this->db->query('INSERT INTO fahtb_user (user_telegram_id, user_telegram_name, user_folding_name) VALUES (?, ?, ?) 
+		$this->db->query('INSERT INTO fahtb_user (user_telegram_id, user_telegram_name, user_folding_name, user_last_update) VALUES (?, ?, ?, NOW()) 
 			ON DUPLICATE KEY UPDATE user_telegram_name = ?, user_last_update = NOW()',
 			$telegramId, $telegramUsername, $telegramUsername ?? \FoldingAtHome\UserAbstract::DEFAULT_NAME, $telegramUsername
 		);
@@ -53,7 +48,6 @@ class User
 	}
 
 	public function update(?string $telegramUsername = null, ?int $foldingId = null, ?string $foldingName = null, ?int $teamId = null, ?string $teamName = null) {
-		$query = 'UPDATE fahtb_user SET ';
 		$queries = [];
 		$params = [];
 		if (is_string($telegramUsername)) {
@@ -77,7 +71,7 @@ class User
 			$params[] = $teamName;
 		}
 		if (count($params) > 0) {
-			$query .= join($queries, ', ') . ' WHERE user_telegram_id = ?';
+			$query = sprintf('UPDATE fahtb_user SET %s WHERE user_telegram_id = ?', join($queries, ', '));
 
 			$params[] = $this->telegramId;
 			call_user_func_array([$this->db, 'query'], array_merge([$query], $params));

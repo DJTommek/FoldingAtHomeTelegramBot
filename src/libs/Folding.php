@@ -4,14 +4,6 @@ class Folding
 {
 	const STATS_URL = 'https://stats.foldingathome.org';
 
-	public static function loadUserStats($user) {
-		return Utils::requestJson(self::getUserUrl($user, true));
-	}
-
-	public static function loadTeamStats($teamId) {
-		return Utils::requestJson(self::getTeamUrl($teamId, true));
-	}
-
 	public static function getUserUrl(string $user, bool $api = false): string {
 		$baseUrl = self::STATS_URL;
 		if ($api === true) {
@@ -28,23 +20,6 @@ class Folding
 		}
 		$baseUrl .= '/team/' . $teamId;
 		return $baseUrl;
-	}
-
-	public static function getTeamDataFromUserStats($stats) {
-		try {
-			return [$stats->teams[0]->id, $stats->teams[0]->name];
-		} catch (Exception $exception) {
-			return [0, 0];
-		}
-
-		// @TODO It seems, that API is always returning at least one team, even if user is not in any team (in that case it is team ID 0 with name "Default (No team specified)". Needs testing.
-		$foldingTeamId = null;
-		$foldingTeamName = null;
-		if (count($stats->teams) > 0) {
-			$foldingTeamId = $stats->teams[0]->team;
-			$foldingTeamName = $stats->teams[0]->name;
-		}
-		return [0, 0];
 	}
 
 	public static function formatUserStats(\FoldingAtHome\User $stats) {
