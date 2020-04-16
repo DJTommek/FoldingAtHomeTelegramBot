@@ -24,6 +24,7 @@ abstract class Request
 	 * @throws Exceptions\ApiTimeoutException
 	 * @throws Exceptions\NotFoundException
 	 * @throws Exceptions\BadRequestException
+	 * @throws \Exception
 	 */
 	public function fileGetContent(string $url, array $curlOpts = []) {
 		$curl = curl_init($url);
@@ -55,9 +56,17 @@ abstract class Request
 		return $jsonResponse;
 	}
 
-	private function jsonDecode(string $jsonText) {
+	/**
+	 * Decodes a JSON string
+	 *
+	 * @param string $jsonText
+	 * @param bool $assoc true to return associative array or stdClass otherwise
+	 * @return array|\stdClass
+	 * @throws Exceptions\BadResponseException
+	 */
+	private function jsonDecode(string $jsonText, bool $assoc = false) {
 		try {
-			return json_decode($jsonText, false, 512, JSON_THROW_ON_ERROR);
+			return json_decode($jsonText, $assoc, 512, JSON_THROW_ON_ERROR);
 		} catch (\JsonException $exception) {
 			throw new Exceptions\BadResponseException(sprintf('Bad API response: content is not valid JSON, error: "%s"', $exception->getMessage()));
 		}
