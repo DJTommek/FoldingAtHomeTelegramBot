@@ -12,7 +12,7 @@ class StartCommand extends Command
 		parent::__construct($update, $tgLog, $loop);
 
 		$message = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$message .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', Folding::STATS_URL, Folding::STATS_URL) . PHP_EOL;
+		$message .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', \FoldingAtHome\Request::STATS_BASE_URL, \FoldingAtHome\Request::STATS_BASE_URL) . PHP_EOL;
 		$message .= sprintf('Check /help for get list of commands.') . PHP_EOL;
 		$message .= PHP_EOL;
 		// nick was guessed based on Telegram username

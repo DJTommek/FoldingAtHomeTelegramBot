@@ -9,6 +9,7 @@ class User extends UserAbstract
 {
 	protected $id;
 
+
 	protected $wus;
 	protected $credit;
 	protected $rank;
@@ -58,6 +59,8 @@ class User extends UserAbstract
 	}
 
 	/**
+	 * Dynamically create object from JSON downloaded from API
+	 *
 	 * @param $json
 	 * @return User
 	 * @throws Exceptions\GeneralException

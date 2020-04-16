@@ -2,10 +2,8 @@
 
 class Folding
 {
-	const STATS_URL = 'https://stats.foldingathome.org';
-
 	public static function getUserUrl(string $user, bool $api = false): string {
-		$baseUrl = self::STATS_URL;
+		$baseUrl = \FoldingAtHome\Request::STATS_BASE_URL;
 		if ($api === true) {
 			$baseUrl .= '/api';
 		}
@@ -14,7 +12,7 @@ class Folding
 	}
 
 	public static function getTeamUrl($teamId, bool $api = false): string {
-		$baseUrl = self::STATS_URL;
+		$baseUrl = \FoldingAtHome\Request::STATS_BASE_URL;
 		if ($api === true) {
 			$baseUrl .= '/api';
 		}

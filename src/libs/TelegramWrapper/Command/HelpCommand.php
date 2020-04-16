@@ -15,7 +15,7 @@ class HelpCommand extends Command
 		parent::__construct($update, $tgLog, $loop);
 
 		$text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', Folding::STATS_URL, Folding::STATS_URL) . PHP_EOL;
+		$text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', \FoldingAtHome\Request::STATS_BASE_URL, \FoldingAtHome\Request::STATS_BASE_URL) . PHP_EOL;
 		$text .= PHP_EOL;
 		$text .= sprintf(Icons::USER . ' <b>User commands</b>:') . PHP_EOL;
 		$text .= sprintf(' /stats - load your personal statistics. Currently set to user <a href="%s">%s</a>', $user->getUrl(), htmlentities($user->getFoldingName())) . PHP_EOL;

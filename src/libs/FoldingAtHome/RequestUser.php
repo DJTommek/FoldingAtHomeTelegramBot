@@ -36,6 +36,8 @@ class RequestUser extends Request
 	}
 
 	/**
+	 * Download stats from FoldingAtHome API
+	 *
 	 * @param array $curlOpts
 	 * @return User
 	 * @throws Exceptions\ApiErrorException
