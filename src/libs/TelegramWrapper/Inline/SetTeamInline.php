@@ -8,7 +8,7 @@ use \Icons;
 class SetTeamInline extends Inline
 {
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		$foldingTeamId = intval($this->params[0]);
 		$foldingTeamName = base64_decode($this->params[1]);

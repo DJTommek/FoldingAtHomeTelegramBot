@@ -25,14 +25,16 @@ abstract class Command
 	protected $update;
 	protected $tgLog;
 	protected $loop;
+	protected $user;
 
 	protected $command = null;
 	protected $params = [];
 
-	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop) {
+	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop, \User $user) {
 		$this->update = $update;
 		$this->tgLog = $tgLog;
 		$this->loop = $loop;
+		$this->user = $user;
 
 		$this->command = Telegram::getCommand($update);
 		$this->params = Telegram::getParams($update);

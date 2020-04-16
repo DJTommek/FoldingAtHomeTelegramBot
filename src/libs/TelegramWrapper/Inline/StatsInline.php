@@ -17,7 +17,7 @@ use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
 class StatsInline extends Inline
 {
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		if (isset($this->params[0])) {
 			$foldingUserId = htmlentities($this->params[0]);

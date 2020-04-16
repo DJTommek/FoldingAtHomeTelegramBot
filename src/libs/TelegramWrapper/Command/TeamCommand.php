@@ -25,7 +25,7 @@ class TeamCommand extends Command
 	 * @throws GeneralException
 	 */
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		$command = '/team';
 

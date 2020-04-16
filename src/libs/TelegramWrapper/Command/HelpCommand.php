@@ -12,7 +12,7 @@ use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
 class HelpCommand extends Command
 {
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		$text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
 		$text .= sprintf('Simple bot which help you to get statistics from <a href="%s">%s</a> website here into Telegram.', \FoldingAtHome\Request::STATS_BASE_URL, \FoldingAtHome\Request::STATS_BASE_URL) . PHP_EOL;

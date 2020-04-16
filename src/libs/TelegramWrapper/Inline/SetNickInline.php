@@ -9,7 +9,7 @@ use Tracy\Debugger;
 class SetNickInline extends Inline
 {
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		$foldingUserId = intval($this->params[0]);
 		$foldingUserName = base64_decode($this->params[1]);

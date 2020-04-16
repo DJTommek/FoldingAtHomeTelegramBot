@@ -17,7 +17,7 @@ class MessageCommand extends Command
 	 * @throws \FoldingAtHome\Exceptions\GeneralException
 	 */
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		if ($this->isPm()) {
 			$this->runPM();

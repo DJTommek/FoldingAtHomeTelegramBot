@@ -18,7 +18,7 @@ class StatsCommand extends Command
 	 * @throws GeneralException
 	 */
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		// @TODO should be dynamically loaded from parent class
 		$command = '/stats';

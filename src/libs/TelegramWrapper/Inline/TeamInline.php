@@ -14,7 +14,7 @@ use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 class TeamInline extends Inline
 {
 	public function __construct($update, $tgLog, $loop, \User $user) {
-		parent::__construct($update, $tgLog, $loop);
+		parent::__construct($update, $tgLog, $loop, $user);
 
 		if (isset($this->params[0])) {
 			$foldingTeamId = htmlentities($this->params[0]);

@@ -3,23 +3,28 @@
 namespace TelegramWrapper\Inline;
 
 
+use React\EventLoop\StreamSelectLoop;
 use TelegramWrapper\Telegram;
 use unreal4u\TelegramAPI\Telegram\Methods\AnswerCallbackQuery;
 use unreal4u\TelegramAPI\Telegram\Methods\SendChatAction;
+use unreal4u\TelegramAPI\Telegram\Types\Update;
+use unreal4u\TelegramAPI\TgLog;
 
 abstract class Inline
 {
-	private $update;
-	private $tgLog;
-	private $loop;
+	protected $update;
+	protected $tgLog;
+	protected $loop;
+	protected $user;
 
 	protected $command = null;
 	protected $params = [];
 
-	public function __construct($update, $tgLog, $loop) {
+	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop, \User $user) {
 		$this->update = $update;
 		$this->tgLog = $tgLog;
 		$this->loop = $loop;
+		$this->user = $user;
 
 		$this->command = Telegram::getCommand($update);
 		$this->params = Telegram::getParams($update);
