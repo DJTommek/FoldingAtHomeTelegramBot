@@ -64,6 +64,9 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/help':
 			new \TelegramWrapper\Command\HelpCommand($update, $tgLog, $loop, $user);
 			break;
+		case '/settings':
+			new \TelegramWrapper\Command\SettingsCommand($update, $tgLog, $loop, $user);
+			break;
 		case '/stats':
 			new \TelegramWrapper\Command\StatsCommand($update, $tgLog, $loop, $user);
 			break;

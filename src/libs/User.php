@@ -11,6 +11,7 @@ class User
 	private $foldingName;
 	private $foldingTeamId;
 	private $foldingTeamName;
+	private $settings = [];
 
 	/**
 	 * User constructor.
@@ -29,6 +30,7 @@ class User
 		$this->foldingName = $userData['user_folding_name'];
 		$this->foldingTeamId = $userData['user_folding_team_id'];
 		$this->foldingTeamName = $userData['user_folding_team_name'];
+		$this->settings['timezone'] = $userData['user_settings_timezone'];
 	}
 
 	public function register(int $telegramId, ?string $telegramUsername = null) {
@@ -134,6 +136,18 @@ class User
 	 */
 	public function getFoldingTeamName() {
 		return $this->foldingTeamName;
+	}
+
+	/**
+	 * @param string|null $name
+	 * @return array|mixed
+	 */
+	public function getSettings(?string $name = null) {
+		if (is_null($name)) {
+			return $this->settings;
+		} else {
+			return $this->settings[$name];
+		}
 	}
 
 }
