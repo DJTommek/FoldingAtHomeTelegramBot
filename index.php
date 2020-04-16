@@ -7,31 +7,30 @@ try {
 	$statuses['Database connection'] = 'connected';
 	try {
 		$tabledata = $db->query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME LIKE ?", DB_NAME, 'fahtb_%')->fetchAll();
-		dd($tabledata, false);
-		$statuses['Database installed tables'] = count($tabledata) . '/@TODO';
+		$totalTables = 1;
+		if (count($tabledata) === $totalTables) {
+			$statuses['Database installed tables'] = sprintf('all (%d)', $totalTables);
+		} else {
+			$statuses['Database installed tables'] = sprintf('error: installed only %d of %d', count($tabledata), $totalTables);
+		}
 	} catch (Exception $exception) {
 		$statuses['Database installed'] = 'error: ' . $exception->getMessage();
-		dd($exception);
 	}
 } catch (Exception $exception) {
 	$statuses['Database connection'] = 'error: ' . $exception->getMessage();
 }
 ?>
-<h1>FoldingAtHome Telegram bot</h1>
-<p>
-	Index file for bot.
-</p>
-<ul>
-	<li><a href="install.php">Install bot</a></li>
-</ul>
-<h2>Status</h2>
+	<h1>FoldingAtHome Telegram bot</h1>
+	<p>
+		Index file for bot.
+	</p>
+	<ul>
+		<li><a href="install.php">Install bot</a></li>
+	</ul>
+	<h2>Status</h2>
 <?php
 foreach ($statuses as $statusName => $statusText) {
 	printf('<li><b>%s</b>: %s</li>', $statusName, $statusText);
 }
-$a = new FoldingAtHome\RequestUser('DJTommekkkk');
-dd($a, false);
-$b = $a->load();
-dd($b, false);
 
 
