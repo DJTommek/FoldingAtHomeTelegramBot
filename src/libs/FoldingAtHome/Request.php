@@ -35,7 +35,7 @@ abstract class Request
 			if (curl_errno($curl) === 28) {
 				throw new Exceptions\ApiTimeoutException('API request timeouted.');
 			} else {
-				throw new Exceptions\BadRequestException('API request CURL error ' . curl_errno($curl));
+				throw new Exceptions\BadRequestException('API request CURL error ID ' . curl_errno($curl) . ': "' . curl_error($curl) . '"');
 			}
 		}
 		list($header, $body) = explode("\r\n\r\n", $curlResponse, 2);
@@ -43,11 +43,7 @@ abstract class Request
 			$responseCode = trim(explode(PHP_EOL, $header)[0]);
 			throw new Exceptions\BadResponseException('Bad API response from "' . $url . '": "' . $responseCode . '".');
 		}
-		try {
-			$jsonResponse = json_decode($body, false, 512, JSON_THROW_ON_ERROR);
-		} catch (\JsonException $exception) {
-			throw new Exceptions\BadResponseException(sprintf('Bad API response from "%s": content is not valid JSON, error: "%s"', $url, $exception->getMessage()));
-		}
+		$jsonResponse = $this->jsonDecode($body);
 		if (isset($jsonResponse->error)) {
 			if ($jsonResponse->error === self::FOLDING_ERROR_NOT_FOUND) {
 				throw new Exceptions\NotFoundException();
@@ -56,6 +52,14 @@ abstract class Request
 			}
 		}
 		return $jsonResponse;
+	}
+
+	private function jsonDecode(string $jsonText) {
+		try {
+			return json_decode($jsonText, false, 512, JSON_THROW_ON_ERROR);
+		} catch (\JsonException $exception) {
+			throw new Exceptions\BadResponseException(sprintf('Bad API response: content is not valid JSON, error: "%s"', $exception->getMessage()));
+		}
 	}
 
 	abstract function getUrl(string $id, bool $api = false);
