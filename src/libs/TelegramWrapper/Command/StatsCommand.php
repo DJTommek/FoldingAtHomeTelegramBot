@@ -2,21 +2,21 @@
 
 namespace TelegramWrapper\Command;
 
-use \Folding;
-use FoldingAtHome\Exceptions\ApiErrorException;
-use FoldingAtHome\Exceptions\ApiTimeoutException;
+use Folding;
 use FoldingAtHome\Exceptions\GeneralException;
-use FoldingAtHome\Exceptions\NotFoundException;
-use FoldingAtHome\RequestUser;
-use \Icons;
-use Tracy\Debugger;
-use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Button;
-use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
-use unreal4u\TelegramAPI\Telegram\Types\KeyboardButton;
-use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
+use Icons;
 
 class StatsCommand extends Command
 {
+	/**
+	 * StatsCommand constructor.
+	 *
+	 * @param $update
+	 * @param $tgLog
+	 * @param $loop
+	 * @param \User $user
+	 * @throws GeneralException
+	 */
 	public function __construct($update, $tgLog, $loop, \User $user) {
 		parent::__construct($update, $tgLog, $loop);
 
@@ -26,8 +26,6 @@ class StatsCommand extends Command
 		$exampleText = sprintf('%s DJTommek', $command) . PHP_EOL;
 		$exampleText .= sprintf('%s 68256828', $command) . PHP_EOL;
 		$exampleText .= sprintf('%s https://stats.foldingathome.org/donor/DJTommek', $command) . PHP_EOL;
-
-		$replyMarkup = new Markup();
 
 		if (isset($this->params[0])) {
 			// parameter is URL with donor ID
@@ -56,42 +54,6 @@ class StatsCommand extends Command
 			$this->reply(sprintf('%s You have to set your nick first via /setNick &lt;nick or ID or URL&gt;', Icons::ERROR) . PHP_EOL);
 			return;
 		}
-		$this->sendAction();
-		try {
-			$userStats = (new RequestUser($foldingUserId))->load();
-		} catch (NotFoundException $exception) {
-			$this->reply(sprintf('%s User <b>%s</b> not found', Icons::ERROR, htmlentities($foldingUserId)), $replyMarkup);
-			return;
-		} catch (ApiErrorException $exception) {
-			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
-			return;
-		} catch (ApiTimeoutException $exception) {
-			$replyMarkup->inline_keyboard[] = [
-				$this->addRefreshButton($foldingUserId)
-			];
-			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
-			return;
-		} catch (GeneralException $exception) {
-			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
-			throw $exception;
-		}
-		[$text, $buttons] = Folding::formatUserStats($userStats);
-
-		$replyMarkup->inline_keyboard[] = [
-			$this->addRefreshButton($foldingUserId),
-			[
-				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
-				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
-			]
-		];
-		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
-		$this->reply($text, $replyMarkup);
-	}
-
-	private function addRefreshButton($foldingUserId) {
-		return [
-			'text' => sprintf('%s Refresh', Icons::REFRESH),
-			'callback_data' => sprintf('/stats %s', $foldingUserId),
-		];
+		$this->processStatsDonor($foldingUserId);
 	}
 }

@@ -17,10 +17,20 @@ class MessageCommand extends Command
 		}
 	}
 
+	/**
+	 * @throws \FoldingAtHome\Exceptions\GeneralException
+	 */
 	private function runPM() {
-		$text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$text .= sprintf('Check /help to get more info about bot.') . PHP_EOL;
-		$this->reply($text);
+		if (mb_strpos($this->update->message->text, Folding::getUserUrl('')) === 0) {
+			$foldingUserId = htmlentities(str_replace(Folding::getUserUrl(''), '', $this->update->message->text));
+			$this->processStatsDonor($foldingUserId);
+		} else if (mb_strpos($this->update->message->text, Folding::getTeamUrl('')) === 0) {
+			$this->reply('loading team stats');
+		} else {
+			$text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
+			$text .= sprintf('Check /help to get more info about bot.') . PHP_EOL;
+			$this->reply($text);
+		}
 	}
 
 	private function runGroup() {
