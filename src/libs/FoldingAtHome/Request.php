@@ -32,10 +32,11 @@ abstract class Request
 		curl_setopt_array($curl, $curlOpts);
 		$curlResponse = curl_exec($curl);
 		if ($curlResponse === false) { // @TODO translate to CURLE_something error https://www.php.net/manual/en/function.curl-errno.php
-			if (curl_errno($curl) === 28) {
+			if (curl_errno($curl) === CURLE_OPERATION_TIMEOUTED) {
 				throw new Exceptions\ApiTimeoutException('API request timeouted.');
 			} else {
-				throw new Exceptions\BadRequestException('API request CURL error ID ' . curl_errno($curl) . ': "' . curl_error($curl) . '"');
+				$curlErrno = curl_errno($curl);
+				throw new Exceptions\BadRequestException('API request CURL error ' . $curlErrno . ' (' . $this->getCurlConstantName($curlErrno) . '): "' . curl_error($curl) . '"');
 			}
 		}
 		list($header, $body) = explode("\r\n\r\n", $curlResponse, 2);
@@ -61,6 +62,24 @@ abstract class Request
 			throw new Exceptions\BadResponseException(sprintf('Bad API response: content is not valid JSON, error: "%s"', $exception->getMessage()));
 		}
 	}
+
+	/**
+	 * Translate CURL error code to it's constant
+	 *
+	 * @param int $curlErrorCode
+	 * @return string
+	 * @throws \Exception
+	 */
+	private function getCurlConstantName(int $curlErrorCode): string {
+		$curlConstants = get_defined_constants(true)['curl'];
+		foreach ($curlConstants as $curlConstantText => $curlConstantNumber) {
+			if ($curlConstantNumber === $curlErrorCode && substr($curlConstantText, 0, 6) === 'CURLE_') {
+				return $curlConstantText;
+			}
+		}
+		throw new \Exception('Invalid CURL error number.');
+	}
+
 
 	abstract function getUrl(string $id, bool $api = false);
 
