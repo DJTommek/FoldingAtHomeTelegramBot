@@ -8,6 +8,7 @@ use FoldingAtHome\Exceptions\ApiErrorException;
 use FoldingAtHome\Exceptions\ApiTimeoutException;
 use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
+use FoldingAtHome\RequestTeam;
 use FoldingAtHome\RequestUser;
 use Icons;
 use React\EventLoop\StreamSelectLoop;
@@ -95,7 +96,7 @@ abstract class Command
 			return;
 		} catch (ApiTimeoutException $exception) {
 			$replyMarkup->inline_keyboard[] = [
-				$this->addRefreshButton($foldingUserId)
+				$this->addDonorRefreshButton($foldingUserId)
 			];
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
 			return;
@@ -106,7 +107,7 @@ abstract class Command
 		[$text, $buttons] = Folding::formatUserStats($userStats);
 
 		$replyMarkup->inline_keyboard[] = [
-			$this->addRefreshButton($foldingUserId),
+			$this->addDonorRefreshButton($foldingUserId),
 			[
 				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
 				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
@@ -116,10 +117,54 @@ abstract class Command
 		$this->reply($text, $replyMarkup);
 	}
 
-	private function addRefreshButton($foldingUserId) {
+	private function addDonorRefreshButton($foldingUserId) {
 		return [
 			'text' => sprintf('%s Refresh', Icons::REFRESH),
 			'callback_data' => sprintf('/stats %s', $foldingUserId),
 		];
+	}
+
+	private function addTeamRefreshButton($foldingUserId) {
+		return [
+			[
+				'text' => sprintf('%s Refresh', Icons::REFRESH),
+				'callback_data' => sprintf('/team %s', $foldingUserId),
+			],
+		];
+	}
+
+	/**
+	 * @param $foldingTeamId
+	 * @throws GeneralException
+	 */
+	protected function processStatsTeam($foldingTeamId) {
+		$replyMarkup = new Markup();
+		$this->sendAction();
+		try {
+			$teamStats = (new RequestTeam($foldingTeamId))->load();
+		} catch (NotFoundException $exception) {
+			$this->reply(sprintf('%s Team <b>%s</b> not found', Icons::ERROR, htmlentities($foldingTeamId)), $replyMarkup);
+			return;
+		} catch (ApiErrorException $exception) {
+			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
+			return;
+		} catch (ApiTimeoutException $exception) {
+			$replyMarkup->inline_keyboard[] = $this->addTeamRefreshButton($foldingTeamId);
+			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
+			return;
+		} catch (GeneralException $exception) {
+			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
+			throw $exception;
+		}
+		[$text, $buttons] = Folding::formatTeamStats($teamStats);
+
+		$replyMarkup = new Markup();
+		$replyMarkup->inline_keyboard[] = $this->addTeamRefreshButton($teamStats->id);
+		$replyMarkup->inline_keyboard[0][] = [
+			'text' => Icons::DEFAULT . ' Set team as default',
+			'callback_data' => '/setteam ' . $teamStats->id . ' ' . base64_encode($teamStats->name),
+		];
+		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
+		$this->reply($text, $replyMarkup);
 	}
 }
