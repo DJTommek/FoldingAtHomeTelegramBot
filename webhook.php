@@ -48,6 +48,9 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/setteam':
 			new \TelegramWrapper\Inline\SetTeamInline($update, $tgLog, $loop, $user);
 			break;
+		case '/settings':
+			new \TelegramWrapper\Inline\SettingsInline($update, $tgLog, $loop, $user);
+			break;
 		default: // unknown
 			// @TODO log error, this should not happen. Edit: can happen if some command is no longer used (for example /stats was changed to /donor)
 			break;

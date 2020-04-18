@@ -11,24 +11,16 @@ use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
 
 class SettingsCommand extends Command
 {
-	/**
-	 * SettingsCommand constructor.
-	 *
-	 * @param $update
-	 * @param $tgLog
-	 * @param $loop
-	 * @param \User $user
-	 * @throws \Exception
-	 */
 	public function __construct($update, $tgLog, $loop, \User $user) {
 		parent::__construct($update, $tgLog, $loop, $user);
+		$replyMarkup = new Markup();
+		$replyMarkup->inline_keyboard[] = [
+			[
+				'text' => sprintf('Settings'),
+				'callback_data' => sprintf('/settings'),
+			],
+		];
 
-		$text = sprintf('Currently set timezone: "%s"', $this->user->getSettings('timezone')) . PHP_EOL;
-		$TZGroups = \Utils\Datetime::getTZGroups();
-		$text .= sprintf('Choose area: %s', join(', ', $TZGroups)) . PHP_EOL;
-		foreach ($TZGroups as $TZGroup) {
-			$text .= sprintf('Choose subzone from zone "%s": %s', $TZGroup, join(', ', \Utils\Datetime::getTZSubzone($TZGroup))) . PHP_EOL;
-		}
-		$this->reply($text);
+		$this->reply('Just button here', $replyMarkup);
 	}
 }
