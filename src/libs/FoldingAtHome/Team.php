@@ -25,17 +25,17 @@ class Team extends TeamAbstract
 	 * @param int $active50
 	 * @param int $credit
 	 * @param string $name
-	 * @param $url
-	 * @param $logo
-	 * @param $wusCert
-	 * @param $creditCert
-	 * @param $rank
-	 * @param $totalTeams
-	 * @param $path
+	 * @param string|null $url
+	 * @param string|null $logo
+	 * @param string $wusCert
+	 * @param string $creditCert
+	 * @param int $rank
+	 * @param int $totalTeams
+	 * @param string $path
 	 * @param User[] $donors
 	 * @throws Exceptions\GeneralException
 	 */
-	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name, string $url, string $logo, string $wusCert, string $creditCert, int $rank, int $totalTeams, string $path, array $donors) {
+	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name, ?string $url, ?string $logo, string $wusCert, string $creditCert, int $rank, int $totalTeams, string $path, array $donors) {
 		parent::__construct($id, $wus, $last, $active50, $credit, $name);
 		foreach ($donors as $donor) {
 			if ($donor instanceof TeamUser === false) {
