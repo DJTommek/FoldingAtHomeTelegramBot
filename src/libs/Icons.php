@@ -11,6 +11,7 @@ class Icons
 	const SUCCESS = "\u{2705}"; // https://emojipedia.org/check-mark-button/
 	const CHECKED = "\u{2705}"; // https://emojipedia.org/check-mark-button/
 	const INFO = "\u{2139}"; // https://emojipedia.org/information/
+	const BACK = "\u{1F519}"; // https://emojipedia.org/back-arrow/
 
 	const DONOR = "\u{1F44D}"; // https://emojipedia.org/thumbs-up/
 	const TEAM = "\u{1F590}"; // https://emojipedia.org/hand-with-fingers-splayed/

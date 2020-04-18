@@ -51,6 +51,9 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/settings':
 			new \TelegramWrapper\Inline\SettingsInline($update, $tgLog, $loop, $user);
 			break;
+		case '/settings-timezone':
+			new \TelegramWrapper\Inline\SettingsTimezoneInline($update, $tgLog, $loop, $user);
+			break;
 		default: // unknown
 			// @TODO log error, this should not happen. Edit: can happen if some command is no longer used (for example /stats was changed to /donor)
 			break;
