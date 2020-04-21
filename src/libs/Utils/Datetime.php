@@ -18,6 +18,11 @@ class Datetime
 		return $dateTime->format('T');
 	}
 
+	/**
+	 * Get list of groups for timezones (America, Europe, Asia, etc)
+	 *
+	 * @return string[]
+	 */
 	public static function getTimezoneContinents() {
 		$timezoneGroups = [];
 		foreach (\DateTimeZone::listIdentifiers() as $timezone) {
@@ -29,30 +34,44 @@ class Datetime
 	}
 
 	/**
-	 * @param string $timezoneArea string from getTimezoneContinents
-	 * @param bool $withContinent
-	 * @return array
+	 * Get list of all timezones
+	 *
+	 * @return \Datetimezone[]
+	 */
+	public static function getTimezones() {
+		return self::timezonesToClass(\DateTimeZone::listIdentifiers());
+	}
+
+	/**
+	 * @param string $timezoneContinent string from getTimezoneContinents
+	 * @return array|\Datetimezone[]
 	 * @throws \Exception
 	 */
-	public static function getTimezoneAreas(?string $timezoneArea = null, bool $withContinent = false) {
-		if (is_null($timezoneArea)) {
-			return \DateTimeZone::listIdentifiers();
-		}
-		if (!in_array($timezoneArea, self::getTimezoneContinents())) {
-			throw new \Exception(sprintf('"%s" is not valid timezone continent', $timezoneArea));
+	public static function getTimezonesByContinent(string $timezoneContinent) {
+		if (!in_array($timezoneContinent, self::getTimezoneContinents())) {
+			throw new \Exception(sprintf('"%s" is not valid timezone continent', $timezoneContinent));
 		}
 		$timezoneSubzones = [];
-		foreach (\DateTimeZone::listIdentifiers() as $timezone) {
-			$timezoneExploded = explode('/', $timezone);
-			if (array_shift($timezoneExploded) === $timezoneArea) {
-				$subzone = join('/', $timezoneExploded);
-				if ($withContinent) {
-					$timezoneSubzones[$timezone] = $timezone;
-				} else {
-					$timezoneSubzones[$subzone] = $subzone;
-				}
+		foreach (self::getTimezones() as $timezone) {
+			$timezoneExploded = explode('/', $timezone->getName());
+			if (array_shift($timezoneExploded) === $timezoneContinent) {
+				$timezoneSubzones[$timezone->getName()] = $timezone; // @TODO it seems that this grouping by name is not necessary, should be unique
 			}
 		}
 		return array_values($timezoneSubzones);
+	}
+
+	/**
+	 * Convert array of timezone strings into array of timezone objects
+	 *
+	 * @param string[] $timezones
+	 * @return \Datetimezone[]
+	 */
+	public static function timezonesToClass(array $timezones) {
+		$result = [];
+		foreach ($timezones as $timezone) {
+			$result[] = new \DateTimeZone($timezone);
+		}
+		return $result;
 	}
 }

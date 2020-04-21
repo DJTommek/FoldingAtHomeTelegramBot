@@ -85,13 +85,12 @@ class SettingsTimezoneInline extends Inline
 	private function getTimezonesButtons(string $timezoneContinents) {
 		$inlineKeyboard = [];
 
-		$timezoneAreas = \Utils\Datetime::getTimezoneAreas($timezoneContinents, true);
+		$timezoneAreas = \Utils\Datetime::getTimezonesByContinent($timezoneContinents);
 
 		foreach ($timezoneAreas as $i => $timezoneArea) {
-			if ($this->user->getSettings('timezone') === $timezoneArea) {
-				$buttonText = sprintf('%s %s', Icons::CHECKED, $timezoneArea);
-			} else {
-				$buttonText = $timezoneArea;
+			$buttonText = $timezoneArea->getName();
+			if ($this->user->getSettings('timezone') === $timezoneArea->getName()) {
+				$buttonText .= ' ' . Icons::CHECKED;
 			}
 			$inlineKeyboard[] = [[
 				'text' => $buttonText,
