@@ -5,6 +5,8 @@ namespace TelegramWrapper\Inline;
 
 use React\EventLoop\StreamSelectLoop;
 use TelegramWrapper\Telegram;
+use Tracy\Debugger;
+use Tracy\ILogger;
 use unreal4u\TelegramAPI\Telegram\Methods\AnswerCallbackQuery;
 use unreal4u\TelegramAPI\Telegram\Methods\SendChatAction;
 use unreal4u\TelegramAPI\Telegram\Types\Update;
@@ -42,10 +44,11 @@ abstract class Inline
 		return Telegram::isPM($this->update);
 	}
 
-	public function replyButton(string $text, $replyMarkup = null) {
-		$msg = new \TelegramWrapper\SendMessage($this->getChatId(), $text, null, $replyMarkup, $this->update->callback_query->message->message_id);
+	public function replyButton(string $text, $replyMarkup = null, $editMessage = true) {
+		$msg = new \TelegramWrapper\SendMessage($this->getChatId(), $text, null, $replyMarkup, $editMessage ? $this->update->callback_query->message->message_id : null);
 		$this->run($msg->msg);
 	}
+
 	public function flash(string $text, bool $alert = false) {
 		$flash = new AnswerCallbackQuery();
 		$flash->text = $text;
@@ -67,10 +70,12 @@ abstract class Inline
 
 		$promise->then(
 			function ($response) {
-				dd($response, false);
+				Debugger::log($response);
+				Debugger::log('TG API Inline request successfull. Response: ' . $response);
 			},
 			function (\Exception $exception) {
-				dd($exception, false);
+				Debugger::log(sprintf('TG API Inline request error: "%s"', $exception->getMessage()), ILogger::EXCEPTION);
+				Debugger::log($exception, ILogger::EXCEPTION);
 			}
 		);
 

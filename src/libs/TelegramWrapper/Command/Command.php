@@ -74,11 +74,11 @@ abstract class Command
 		$promise->then(
 			function ($response) {
 				Debugger::log($response);
-				Debugger::log('TG API Request successfull. Response: ' . $response);
+				Debugger::log('TG API Command request successfull. Response: ' . $response);
 			},
 			function (\Exception $exception) {
-				Debugger::log(sprintf('Error while API request: "%s"', $exception->getMessage()), ILogger::EXCEPTION);
-				throw $exception;
+				Debugger::log(sprintf('TG API Command request error: "%s"', $exception->getMessage()), ILogger::EXCEPTION);
+				Debugger::log($exception, ILogger::EXCEPTION);
 			}
 		);
 	}
