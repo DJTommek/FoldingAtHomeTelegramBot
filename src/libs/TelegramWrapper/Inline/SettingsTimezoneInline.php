@@ -6,9 +6,19 @@ use \Folding;
 use \Icons;
 use Tracy\Debugger;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
+use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
 
 class SettingsTimezoneInline extends Inline
 {
+	/**
+	 * SettingsTimezoneInline constructor.
+	 *
+	 * @param $update
+	 * @param $tgLog
+	 * @param $loop
+	 * @param \User $user
+	 * @throws \Exception
+	 */
 	public function __construct($update, $tgLog, $loop, \User $user) {
 		parent::__construct($update, $tgLog, $loop, $user);
 
@@ -26,14 +36,12 @@ class SettingsTimezoneInline extends Inline
 				],
 			]
 		];
+		// listing all timezone areas in specific continent
 		if (isset($this->params[0])) {
-			$replyMarkup->inline_keyboard[0][] = [
-				'text' => sprintf('%s Timezone groups', Icons::BACK),
-				'callback_data' => sprintf('/settings-timezone'),
-			];
-
-			$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getTimezonesButtons($this->params[0]));
-			$this->replyButton($text, $replyMarkup);
+			$replyMarkup = new ReplyKeyboardMarkup();
+			$replyMarkup->one_time_keyboard = true;
+			$replyMarkup->keyboard = $this->getTimezonesButtons($this->params[0]);
+			$this->replyButton($text, $replyMarkup, false);
 		} else {
 			$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getGroupsButtons());
 			$this->replyButton($text, $replyMarkup);
@@ -45,23 +53,23 @@ class SettingsTimezoneInline extends Inline
 		$inlineKeyboard = [];
 		$buttonRow = [];
 
-		$TZGroups = \Utils\Datetime::getTZGroups();
+		$timezoneContinents = \Utils\Datetime::getTimezoneContinents();
 
-		foreach ($TZGroups as $i => $TZGroup) {
+		foreach ($timezoneContinents as $i => $timezoneContinent) {
 			if ($i % 4 === 0) {
 				$inlineKeyboard[] = $buttonRow;
 				$buttonRow = [];
 			}
-			if (mb_strpos($this->user->getSettings('timezone'), $TZGroup) === 0) {
-				$buttonText = sprintf('%s %s', Icons::CHECKED, $TZGroup);
+			if (mb_strpos($this->user->getSettings('timezone'), $timezoneContinent) === 0) {
+				$buttonText = sprintf('%s %s', Icons::CHECKED, $timezoneContinent);
 			} else {
-				$buttonText = $TZGroup;
+				$buttonText = $timezoneContinent;
 			}
 			$buttonRow[] = [
 				'text' => $buttonText,
-				'callback_data' => sprintf('/settings-timezone %s', $TZGroup),
+				'callback_data' => sprintf('/settings-timezone %s', $timezoneContinent),
 			];
-//			$this->reply(sprintf('Choose subzone from zone "%s": %s', $TZGroup, join(', ', \Utils\Datetime::getTZSubzone($TZGroup))));
+//			$this->reply(sprintf('Choose subzone from zone "%s": %s', $timezoneContinent, join(', ', \Utils\Datetime::getTZSubzone($timezoneContinent))));
 		}
 		if (count($buttonRow) > 0) {
 			$inlineKeyboard[] = $buttonRow;
@@ -70,34 +78,24 @@ class SettingsTimezoneInline extends Inline
 	}
 
 	/**
-	 * @param string $TZGroup
+	 * @param string $timezoneContinents
 	 * @return array
 	 * @throws \Exception
 	 */
-	private function getTimezonesButtons(string $TZGroup) {
+	private function getTimezonesButtons(string $timezoneContinents) {
 		$inlineKeyboard = [];
-		$buttonRow = [];
 
-		$TZsubzones = \Utils\Datetime::getTZSubzone($TZGroup);
+		$timezoneAreas = \Utils\Datetime::getTimezoneAreas($timezoneContinents, true);
 
-		foreach ($TZsubzones as $i => $TZsubzone) {
-			if ($i % 2 === 0) {
-				$inlineKeyboard[] = $buttonRow;
-				$buttonRow = [];
-			}
-			if ($this->user->getSettings('timezone') === $TZsubzone) {
-				$buttonText = sprintf('%s %s', Icons::CHECKED, $TZsubzone);
+		foreach ($timezoneAreas as $i => $timezoneArea) {
+			if ($this->user->getSettings('timezone') === $timezoneArea) {
+				$buttonText = sprintf('%s %s', Icons::CHECKED, $timezoneArea);
 			} else {
-				$buttonText = $TZsubzone;
+				$buttonText = $timezoneArea;
 			}
-			$buttonRow[] = [
+			$inlineKeyboard[] = [[
 				'text' => $buttonText,
-				'callback_data' => sprintf('/settings-timezone %s', $TZsubzone),
-			];
-//			$this->reply(sprintf('Choose subzone from zone "%s": %s', $TZGroup, join(', ', \Utils\Datetime::getTZSubzone($TZGroup))));
-		}
-		if (count($buttonRow) > 0) {
-			$inlineKeyboard[] = $buttonRow;
+			]];
 		}
 		return $inlineKeyboard;
 	}

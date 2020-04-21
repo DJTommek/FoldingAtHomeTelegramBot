@@ -49,7 +49,11 @@ class User
 		return $this->update(null, null, null, $foldingTeamId, $foldingTeamName);
 	}
 
-	public function update(?string $telegramUsername = null, ?int $foldingId = null, ?string $foldingName = null, ?int $teamId = null, ?string $teamName = null) {
+	public function updateTimezone(DateTimeZone $timeZone) {
+		return $this->update(null, null, null, null, null, $timeZone);
+	}
+
+	public function update(?string $telegramUsername = null, ?int $foldingId = null, ?string $foldingName = null, ?int $teamId = null, ?string $teamName = null, ?DateTimeZone $timezone = null) {
 		$queries = [];
 		$params = [];
 		if (is_string($telegramUsername)) {
@@ -71,6 +75,10 @@ class User
 		if (is_string($teamName)) {
 			$queries[] = 'user_folding_team_name = ?';
 			$params[] = $teamName;
+		}
+		if ($timezone) {
+			$queries[] = 'user_settings_timezone = ?';
+			$params[] = $timezone->getName();
 		}
 		if (count($params) > 0) {
 			$query = sprintf('UPDATE fahtb_user SET %s WHERE user_telegram_id = ?', join($queries, ', '));

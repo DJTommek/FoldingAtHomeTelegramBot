@@ -4,6 +4,7 @@ namespace TelegramWrapper\Command;
 
 use \Folding;
 use \Icons;
+use Utils\Datetime;
 
 class MessageCommand extends Command
 {
@@ -28,6 +29,7 @@ class MessageCommand extends Command
 
 	/**
 	 * @throws \FoldingAtHome\Exceptions\GeneralException
+	 * @throws \Exception
 	 */
 	private function runPM() {
 		if (mb_strpos($this->update->message->text, Folding::getDonorUrl('')) === 0) {
@@ -36,6 +38,10 @@ class MessageCommand extends Command
 		} else if (mb_strpos($this->update->message->text, Folding::getTeamUrl('')) === 0) {
 			$foldingTeamId = htmlentities(str_replace(Folding::getTeamUrl(''), '', $this->update->message->text));
 			$this->processStatsTeam($foldingTeamId);
+		} else if (in_array($this->update->message->text, Datetime::getTimezoneAreas())) {
+			$datetimeZone = new \DateTimeZone($this->update->message->text);
+			$this->user->updateTimezone($datetimeZone);
+			$this->reply('Timezone set!'); // @TODO some nicer text, also add buttons
 		} else {
 			$text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$text .= sprintf('Check /help to get more info about bot.') . PHP_EOL;
