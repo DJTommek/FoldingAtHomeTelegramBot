@@ -5,13 +5,13 @@ namespace FoldingAtHome;
 use DateTime;
 use Exception;
 
-class UserTeam extends TeamAbstract
+class DonorTeam extends TeamAbstract
 {
 	protected $uid;
 	protected $active7;
 
 	/**
-	 * UserTeam constructor.
+	 * DonorTeam constructor.
 	 *
 	 * @param int $id
 	 * @param int $wus
@@ -30,12 +30,12 @@ class UserTeam extends TeamAbstract
 
 	/**
 	 * @param $json
-	 * @return UserTeam
+	 * @return DonorTeam
 	 * @throws Exception
 	 */
 	public static function createFromJson($json) {
 		$last = isset($json->last) ? new DateTime($json->last, new \DateTimeZone('UTC')) : null;
-		return new UserTeam($json->team, $json->wus, $last, $json->active_50, $json->active_7, $json->credit, $json->name, $json->uid);
+		return new DonorTeam($json->team, $json->wus, $last, $json->active_50, $json->active_7, $json->credit, $json->name, $json->uid);
 	}
 
 	public function __get($name) {

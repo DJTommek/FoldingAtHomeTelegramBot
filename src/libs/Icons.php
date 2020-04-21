@@ -11,7 +11,7 @@ class Icons
 	const SUCCESS = "\u{2705}"; // https://emojipedia.org/check-mark-button/
 	const INFO = "\u{2139}"; // https://emojipedia.org/information/
 
-	const USER = "\u{1F44D}"; // https://emojipedia.org/thumbs-up/
+	const DONOR = "\u{1F44D}"; // https://emojipedia.org/thumbs-up/
 	const TEAM = "\u{1F590}"; // https://emojipedia.org/hand-with-fingers-splayed/
 	const STATS_CREDIT = "\u{1F4B0}"; // https://emojipedia.org/money-bag/
 	const STATS_CREDIT_RANK = "\u{1F396}"; // https://emojipedia.org/military-medal/

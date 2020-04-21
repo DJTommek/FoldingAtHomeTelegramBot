@@ -5,7 +5,7 @@ namespace FoldingAtHome;
 use DateTime;
 use Exception;
 
-class UserAbstract
+class DonorAbstract
 {
 	const DEFAULT_NAME = 'Anonymous';
 	const DEFAULT_ID = 1437;
@@ -18,7 +18,7 @@ class UserAbstract
 	protected $name;
 
 	/**
-	 * UserAbstract constructor.
+	 * DonorAbstract constructor.
 	 *
 	 * @param int $id
 	 * @param int $wus

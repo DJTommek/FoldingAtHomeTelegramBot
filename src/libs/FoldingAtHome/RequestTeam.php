@@ -7,7 +7,7 @@ class RequestTeam extends Request
 	public $id;
 
 	/**
-	 * RequestUser constructor.
+	 * RequestTeam constructor.
 	 *
 	 * @param int $teamId
 	 */
@@ -32,6 +32,7 @@ class RequestTeam extends Request
 	 * @throws Exceptions\BadRequestException
 	 * @throws Exceptions\BadResponseException
 	 * @throws Exceptions\NotFoundException
+	 * @throws \Exception
 	 */
 	public function load(array $curlOpts = []) {
 		$apiUrl = $this->getUrl($this->id, true);

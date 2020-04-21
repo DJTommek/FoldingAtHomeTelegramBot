@@ -2,29 +2,29 @@
 
 class Folding
 {
-	public static function getUserUrl(string $user, bool $api = false): string {
+	public static function getDonorUrl(string $donorIdentificator, bool $api = false): string {
 		$baseUrl = \FoldingAtHome\Request::STATS_BASE_URL;
 		if ($api === true) {
 			$baseUrl .= '/api';
 		}
-		$baseUrl .= '/donor/' . $user;
+		$baseUrl .= '/donor/' . $donorIdentificator;
 		return $baseUrl;
 	}
 
-	public static function getTeamUrl($teamId, bool $api = false): string {
+	public static function getTeamUrl($teamIdentificator, bool $api = false): string {
 		$baseUrl = \FoldingAtHome\Request::STATS_BASE_URL;
 		if ($api === true) {
 			$baseUrl .= '/api';
 		}
-		$baseUrl .= '/team/' . $teamId;
+		$baseUrl .= '/team/' . $teamIdentificator;
 		return $baseUrl;
 	}
 
-	public static function formatUserStats(\FoldingAtHome\User $stats) {
+	public static function formatDonorStats(\FoldingAtHome\Donor $stats) {
 		$buttons = [];
 
-		$message = sprintf('%s\'s folding stats from %s:', Folding::formatUserLink($stats->name), TELEGRAM_BOT_NICK) . PHP_EOL;
-		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s users)',
+		$message = sprintf('%s\'s folding stats from %s:', Folding::formatDonorLink($stats->name), TELEGRAM_BOT_NICK) . PHP_EOL;
+		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s donors)',
 				Icons::STATS_CREDIT,
 				Utils::numberFormat($stats->credit),
 				Icons::STATS_CREDIT_RANK,
@@ -34,7 +34,7 @@ class Folding
 		$message .= sprintf('%s <b>WUs</b>: %s (<a href="%s">certificate</a>)',
 				Icons::STATS_WU,
 				Utils::numberFormat($stats->wus),
-				$stats->wusCert . '&cachebuster=' . $stats->last->getTimestamp()
+				$stats->wusCert . '&cachebuster=' . $stats->last->getTimestamp() // @TODO cachebuster should be last WU done or "today", depending what is newer
 			) . PHP_EOL;
 		//		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
 		$message .= sprintf('%s <b>Last WU done</b>: %s',
@@ -49,8 +49,8 @@ class Folding
 		// Show top x teams
 		if (count($stats->teams) >= 1) {
 			$message .= PHP_EOL;
-			[$formatUserTeamsMessage, $buttons] = Folding::formatUserTeams($stats);
-			$message .= $formatUserTeamsMessage;
+			[$formatDonorTeamsMessage, $buttons] = Folding::formatDonorTeams($stats);
+			$message .= $formatDonorTeamsMessage;
 		}
 		$message .= PHP_EOL;
 
@@ -63,7 +63,7 @@ class Folding
 	public static function formatTeamStats(\FoldingAtHome\Team $stats) {
 		$buttons = [];
 		$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($stats->id), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
-		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / user)',
+		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / donor)',
 				Icons::STATS_CREDIT,
 				Utils::numberFormat($stats->credit),
 				Icons::STATS_CREDIT_RANK,
@@ -72,7 +72,7 @@ class Folding
 				Icons::AVERAGE,
 				Utils::numberFormat($stats->credit / count($stats->donors))
 			) . PHP_EOL;
-		$message .= sprintf('%s <b>WUs</b>: %s (%s %s / user) <a href="%s">Certificate</a>',
+		$message .= sprintf('%s <b>WUs</b>: %s (%s %s / donor) <a href="%s">Certificate</a>',
 				Icons::STATS_WU,
 				Utils::numberFormat($stats->wus),
 				Icons::AVERAGE,
@@ -81,7 +81,7 @@ class Folding
 			) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
 		$message .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last->format(DATE_FORMAT . ' ' . TIME_FORMAT)) . PHP_EOL;
-		$message .= sprintf('%s‍ <b>Active client(s)</b>: %s (last 50 days, %s %s / user)',
+		$message .= sprintf('%s‍ <b>Active client(s)</b>: %s (last 50 days, %s %s / donor)',
 				Icons::STATS_ACTIVE_CLIENTS,
 				Utils::numberFormat($stats->active50),
 				Icons::AVERAGE,
@@ -91,8 +91,8 @@ class Folding
 		// Show top x donors but only if at least two donors are available
 		if (count($stats->donors) >= 2) {
 			$message .= PHP_EOL;
-			[$formatTeamUsersMessage, $buttons] = Folding::formatTeamUsers($stats);
-			$message .= $formatTeamUsersMessage;
+			[$formatTeamDonorsMessage, $buttons] = Folding::formatTeamDonors($stats);
+			$message .= $formatTeamDonorsMessage;
 		}
 		$message .= PHP_EOL;
 
@@ -102,28 +102,28 @@ class Folding
 		return [$message, $buttons];
 	}
 
-	public static function formatUserLink($user) {
-		return sprintf('<a href="%s">%s</a>', self::getUserUrl($user), $user);
+	public static function formatDonorLink($donorIdentificator) {
+		return sprintf('<a href="%s">%s</a>', self::getDonorUrl($donorIdentificator), $donorIdentificator);
 	}
 
 	public static function formatTeamLink($teamId, $teamName) {
 		return sprintf('<a href="%s">%s</a>', self::getTeamUrl($teamId), $teamName);
 	}
 
-	public static function formatUserTeams(FoldingAtHome\User $stats, $count = 5) {
-		$showing = min(count($stats->teams), $count);
+	public static function formatDonorTeams(FoldingAtHome\Donor $donorStats, $count = 5) {
+		$showing = min(count($donorStats->teams), $count);
 		if ($showing === 0) {
 			return [null, null];
 		}
 		$buttons = [];
 		$message = sprintf('%s <b>%d team(s)</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
-		foreach ($stats->teams as $i => $team) {
+		foreach ($donorStats->teams as $i => $team) {
 			if ($i >= $showing) {
 				break;
 			}
 
-			$wusPercent = ($team->wus / $stats->wus) * 100;
-			$creditPercent = ($team->credit / $stats->credit) * 100;
+			$wusPercent = ($team->wus / $donorStats->wus) * 100;
+			$creditPercent = ($team->credit / $donorStats->credit) * 100;
 
 			$message .= sprintf('%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
 					self::formatTeamLink($team->id, $team->name),
@@ -137,14 +137,14 @@ class Folding
 			$buttons[] = [
 				[
 					'text' => sprintf('%s %s', Icons::TEAM, $team->name),
-					'callback_data' => sprintf('/team %d', $team->id),
+					'callback_data' => sprintf('%s %d', TelegramWrapper\Command\Command::CMD_TEAM, $team->id),
 				],
 			];
 		}
 		return [$message, $buttons];
 	}
 
-	public static function formatTeamUsers($teamStats, $count = 5) {
+	public static function formatTeamDonors($teamStats, $count = 5) {
 		$buttons = [];
 		$showing = min(count($teamStats->donors), $count);
 		if ($showing === 0) {
@@ -175,7 +175,7 @@ class Folding
 
 			$message .= sprintf('%s%s %s WUs: %s (%s%%), %s Credit: %s (%s%%)',
 					$medal,
-					self::formatUserLink($donor->name),
+					self::formatDonorLink($donor->name),
 					Icons::STATS_WU,
 					Utils::numberFormat($donor->wus),
 					Utils::numberFormat($wusPercent, self::getNumberOfDecimalPlaces($wusPercent)),
@@ -185,8 +185,8 @@ class Folding
 				) . PHP_EOL;
 			$buttons[] = [
 				[
-					'text' => sprintf('%s %s', Icons::USER, $donor->name),
-					'callback_data' => sprintf('/stats %d', $donor->id),
+					'text' => sprintf('%s %s', Icons::DONOR, $donor->name),
+					'callback_data' => sprintf('%s %d', \TelegramWrapper\Command\Command::CMD_DONOR, $donor->id),
 				],
 			];
 		}

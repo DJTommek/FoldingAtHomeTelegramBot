@@ -5,7 +5,7 @@ namespace FoldingAtHome;
 use DateTime;
 use Exception;
 
-class User extends UserAbstract
+class Donor extends DonorAbstract
 {
 	protected $id;
 
@@ -24,7 +24,7 @@ class User extends UserAbstract
 	protected $teams = [];
 
 	/**
-	 * User constructor.
+	 * Donor constructor.
 	 *
 	 * @param int $id
 	 * @param int $wus
@@ -38,14 +38,14 @@ class User extends UserAbstract
 	 * @param string $path
 	 * @param DateTime $last
 	 * @param string $name
-	 * @param UserTeam[] $teams
+	 * @param DonorTeam[] $teams
 	 * @throws Exceptions\GeneralException
 	 */
 	public function __construct(int $id, int $wus, int $credit, int $rank, int $totalUsers, int $active7, int $active50, string $wusCert, string $creditCert, string $path, DateTime $last, string $name, array $teams) {
 		parent::__construct($id, $wus, $credit, $name, $rank);
 		foreach ($teams as $team) {
-			if ($team instanceof UserTeam === false) {
-				throw new Exceptions\GeneralException('Some parameter(s) of $teams is not instance of UserTeam');
+			if ($team instanceof DonorTeam === false) {
+				throw new Exceptions\GeneralException('Some parameter(s) of $teams is not instance of DonorTeam'); // @TODO text "DonorTeam" should be dynamically defined from class name. Also add what instance it is
 			}
 		}
 		$this->totalUsers = $totalUsers;
@@ -62,7 +62,7 @@ class User extends UserAbstract
 	 * Dynamically create object from JSON downloaded from API
 	 *
 	 * @param $json
-	 * @return User
+	 * @return Donor
 	 * @throws Exceptions\GeneralException
 	 * @throws Exception
 	 */
@@ -70,9 +70,9 @@ class User extends UserAbstract
 		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
 		$teams = [];
 		foreach ($json->teams as $team) {
-			$teams[] = UserTeam::createFromJson($team);
+			$teams[] = DonorTeam::createFromJson($team);
 		}
-		return new User($json->id, $json->wus, $json->credit, $json->rank, $json->total_users, $json->active_7, $json->active_50, $json->wus_cert, $json->credit_cert, $json->path, $last, $json->name, $teams);
+		return new Donor($json->id, $json->wus, $json->credit, $json->rank, $json->total_users, $json->active_7, $json->active_50, $json->wus_cert, $json->credit_cert, $json->path, $last, $json->name, $teams);
 	}
 
 	public function __get($name) {

@@ -32,14 +32,14 @@ class Team extends TeamAbstract
 	 * @param int $rank
 	 * @param int $totalTeams
 	 * @param string $path
-	 * @param User[] $donors
+	 * @param Donor[] $donors
 	 * @throws Exceptions\GeneralException
 	 */
 	public function __construct(int $id, int $wus, DateTime $last, int $active50, int $credit, string $name, ?string $url, ?string $logo, string $wusCert, string $creditCert, int $rank, int $totalTeams, string $path, array $donors) {
 		parent::__construct($id, $wus, $last, $active50, $credit, $name);
 		foreach ($donors as $donor) {
-			if ($donor instanceof TeamUser === false) {
-				throw new Exceptions\GeneralException('Some parameter(s) of $donors is not instance of TeamUser');
+			if ($donor instanceof TeamDonor === false) {
+				throw new Exceptions\GeneralException('Some parameter(s) of $donors is not instance of TeamDonor');
 			}
 		}
 		$this->url = $url;
@@ -61,7 +61,7 @@ class Team extends TeamAbstract
 		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
 		$donors = [];
 		foreach ($json->donors as $donor) {
-			$donors[] = TeamUser::createFromJson($donor);
+			$donors[] = TeamDonor::createFromJson($donor);
 		}
 		return new Team($json->team, $json->wus, $last, $json->active_50, $json->credit, $json->name, $json->url, $json->logo, $json->wus_cert, $json->credit_cert, $json->rank, $json->total_teams, $json->path, $donors);
 	}

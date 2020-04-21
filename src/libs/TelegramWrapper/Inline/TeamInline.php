@@ -9,6 +9,7 @@ use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
 use FoldingAtHome\RequestTeam;
 use \Icons;
+use TelegramWrapper\Command\Command;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 
 class TeamInline extends Inline
@@ -44,7 +45,7 @@ class TeamInline extends Inline
 		$replyMarkup->inline_keyboard[] = [
 			[
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
-				'callback_data' => sprintf('/team %d', $foldingTeamId),
+				'callback_data' => sprintf('%s %d', Command::CMD_TEAM, $foldingTeamId),
 			], [
 				'text' => Icons::DEFAULT . ' Set team as default',
 				'callback_data' => sprintf('/setteam %d %s', $teamStats->id, base64_encode($teamStats->name)),

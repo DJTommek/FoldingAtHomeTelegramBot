@@ -2,36 +2,36 @@
 
 namespace FoldingAtHome;
 
-class RequestUser extends Request
+class RequestDonor extends Request
 {
 	public $id;
 
 	/**
-	 * RequestUser constructor.
+	 * RequestDonor constructor.
 	 *
-	 * @param $userIdentificator
+	 * @param $donorIdentificator
 	 * @throws Exceptions\BadRequestException
 	 */
-	public function __construct($userIdentificator) {
-		$paramType = gettype($userIdentificator);
+	public function __construct($donorIdentificator) {
+		$paramType = gettype($donorIdentificator);
 		if ($paramType === 'string' || $paramType === 'int') {
-			$this->id = $userIdentificator;
+			$this->id = $donorIdentificator;
 		} else {
-			throw new Exceptions\BadRequestException('Invalid parameter, $userIdentificator has to be string for donor name or int for donor ID.');
+			throw new Exceptions\BadRequestException('Invalid parameter, $donorIdentificator has to be string for donor name or int for donor ID.'); // @TODO "$donorIdentificator" in text should be loaded dynamically in case, that variable gets renamed
 		}
 	}
 
 	/**
-	 * @param string $userId
+	 * @param string $donorId
 	 * @param bool $api
 	 * @return string
 	 */
-	public function getUrl(string $userId, bool $api = false): string {
+	public function getUrl(string $donorId, bool $api = false): string {
 		$baseUrl = self::STATS_BASE_URL;
 		if ($api === true) {
 			$baseUrl .= '/api';
 		}
-		$baseUrl .= '/donor/' . $userId;
+		$baseUrl .= '/donor/' . $donorId;
 		return $baseUrl;
 	}
 
@@ -39,7 +39,7 @@ class RequestUser extends Request
 	 * Download stats from FoldingAtHome API
 	 *
 	 * @param array $curlOpts
-	 * @return User
+	 * @return Donor
 	 * @throws Exceptions\ApiErrorException
 	 * @throws Exceptions\ApiTimeoutException
 	 * @throws Exceptions\BadRequestException
@@ -53,6 +53,6 @@ class RequestUser extends Request
 				CURLOPT_CONNECTTIMEOUT => self::TIMEOUT,
 				CURLOPT_TIMEOUT => self::TIMEOUT,
 		]); // override values from outside
-		return User::createFromJson($jsonResponse);
+		return Donor::createFromJson($jsonResponse);
 	}
 }

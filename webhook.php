@@ -35,10 +35,11 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 	$user = new User($update->callback_query->from->id, $update->callback_query->from->username);
 
 	switch ($command ? mb_strtolower($command) : null) {
-		case '/stats':
+		case \TelegramWrapper\Command\Command::CMD_DONOR: // @TODO shouldn't use from Command class, but Inline.
+		case '/stats': // @TODO backward compatibility
 			new \TelegramWrapper\Inline\StatsInline($update, $tgLog, $loop, $user);
 			break;
-		case '/team':
+		case \TelegramWrapper\Command\Command::CMD_TEAM: // @TODO shouldn't use from Command class, but Inline.
 			new \TelegramWrapper\Inline\TeamInline($update, $tgLog, $loop, $user);
 			break;
 		case '/setnick':
@@ -48,7 +49,7 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 			new \TelegramWrapper\Inline\SetTeamInline($update, $tgLog, $loop, $user);
 			break;
 		default: // unknown
-			// @TODO log error, this should not happen
+			// @TODO log error, this should not happen. Edit: can happen if some command is no longer used (for example /stats was changed to /donor)
 			break;
 	}
 } else {
@@ -66,7 +67,10 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/stats':
 			new \TelegramWrapper\Command\StatsCommand($update, $tgLog, $loop, $user);
 			break;
-		case '/team':
+		case \TelegramWrapper\Command\Command::CMD_DONOR:
+			new \TelegramWrapper\Command\DonorCommand($update, $tgLog, $loop, $user);
+			break;
+		case \TelegramWrapper\Command\Command::CMD_TEAM:
 			new \TelegramWrapper\Command\TeamCommand($update, $tgLog, $loop, $user);
 			break;
 		case null: // message without command

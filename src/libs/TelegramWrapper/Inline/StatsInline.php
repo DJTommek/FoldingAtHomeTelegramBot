@@ -7,8 +7,9 @@ use FoldingAtHome\Exceptions\ApiErrorException;
 use FoldingAtHome\Exceptions\ApiTimeoutException;
 use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
-use FoldingAtHome\RequestUser;
+use FoldingAtHome\RequestDonor;
 use \Icons;
+use TelegramWrapper\Command\Command;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Button;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 use unreal4u\TelegramAPI\Telegram\Types\KeyboardButton;
@@ -27,7 +28,7 @@ class StatsInline extends Inline
 		}
 
 		try {
-			$userStats = (new RequestUser($foldingUserId))->load();
+			$userStats = (new RequestDonor($foldingUserId))->load();
 		} catch (NotFoundException $exception) {
 			$this->flash(sprintf('%s User "%s" not found', Icons::ERROR, htmlentities($foldingUserId)), true);
 			return;
@@ -41,13 +42,13 @@ class StatsInline extends Inline
 			$this->flash(sprintf('%s Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), true);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatUserStats($userStats);
+		[$text, $buttons] = Folding::formatDonorStats($userStats);
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = [
 			[
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
-				'callback_data' => sprintf('/stats %s', $foldingUserId),
+				'callback_data' => sprintf('%s %s', Command::CMD_DONOR, $foldingUserId),
 			], [
 				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
 				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),

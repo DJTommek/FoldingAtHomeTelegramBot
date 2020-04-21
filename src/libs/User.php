@@ -34,7 +34,7 @@ class User
 	public function register(int $telegramId, ?string $telegramUsername = null) {
 		$this->db->query('INSERT INTO fahtb_user (user_telegram_id, user_telegram_name, user_folding_name, user_last_update) VALUES (?, ?, ?, NOW()) 
 			ON DUPLICATE KEY UPDATE user_telegram_name = ?, user_last_update = NOW()',
-			$telegramId, $telegramUsername, $telegramUsername ?? \FoldingAtHome\UserAbstract::DEFAULT_NAME, $telegramUsername
+			$telegramId, $telegramUsername, $telegramUsername ?? \FoldingAtHome\DonorAbstract::DEFAULT_NAME, $telegramUsername
 		);
 		return $this->load($telegramId);
 	}
@@ -80,7 +80,7 @@ class User
 	}
 
 	public function getUrl() {
-		return Folding::getUserUrl($this->foldingName);
+		return Folding::getDonorUrl($this->foldingName);
 	}
 
 	public function get() {

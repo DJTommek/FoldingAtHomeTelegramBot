@@ -30,8 +30,8 @@ class MessageCommand extends Command
 	 * @throws \FoldingAtHome\Exceptions\GeneralException
 	 */
 	private function runPM() {
-		if (mb_strpos($this->update->message->text, Folding::getUserUrl('')) === 0) {
-			$foldingUserId = htmlentities(str_replace(Folding::getUserUrl(''), '', $this->update->message->text));
+		if (mb_strpos($this->update->message->text, Folding::getDonorUrl('')) === 0) {
+			$foldingUserId = htmlentities(str_replace(Folding::getDonorUrl(''), '', $this->update->message->text));
 			$this->processStatsDonor($foldingUserId);
 		} else if (mb_strpos($this->update->message->text, Folding::getTeamUrl('')) === 0) {
 			$foldingTeamId = htmlentities(str_replace(Folding::getTeamUrl(''), '', $this->update->message->text));

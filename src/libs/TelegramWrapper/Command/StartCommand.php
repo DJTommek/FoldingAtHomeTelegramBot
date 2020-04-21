@@ -3,7 +3,7 @@
 namespace TelegramWrapper\Command;
 
 use \Folding;
-use FoldingAtHome\UserAbstract;
+use FoldingAtHome\DonorAbstract;
 use \Icons;
 
 class StartCommand extends Command
@@ -16,7 +16,7 @@ class StartCommand extends Command
 		$message .= sprintf('Check /help for get list of commands.') . PHP_EOL;
 		$message .= PHP_EOL;
 		// nick was guessed based on Telegram username
-		if ($user->getTelegramUsername() && $user->getFoldingId() === UserAbstract::DEFAULT_ID && $user->getFoldingName() !== UserAbstract::DEFAULT_NAME) {
+		if ($user->getTelegramUsername() && $user->getFoldingId() === DonorAbstract::DEFAULT_ID && $user->getFoldingName() !== DonorAbstract::DEFAULT_NAME) {
 		$message .= sprintf('%s <b>Note</b>: Folding@home username was guessed based on Telegram username which is "%s". You can change it to anything you want, just check /help', Icons::INFO, $user->getTelegramUsername()) . PHP_EOL;
 		$message .= PHP_EOL;
 		}

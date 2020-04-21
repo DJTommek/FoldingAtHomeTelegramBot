@@ -9,7 +9,7 @@ use FoldingAtHome\Exceptions\ApiTimeoutException;
 use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
 use FoldingAtHome\RequestTeam;
-use FoldingAtHome\RequestUser;
+use FoldingAtHome\RequestDonor;
 use Icons;
 use React\EventLoop\StreamSelectLoop;
 use TelegramWrapper\Telegram;
@@ -29,6 +29,9 @@ abstract class Command
 
 	protected $command = null;
 	protected $params = [];
+
+	const CMD_DONOR = '/donor';
+	const CMD_TEAM = '/team';
 
 	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop, \User $user) {
 		$this->update = $update;
@@ -81,24 +84,24 @@ abstract class Command
 	}
 
 	/**
-	 * @param $foldingUserId
+	 * @param $foldingDonorId
 	 * @throws GeneralException
 	 */
-	protected function processStatsDonor($foldingUserId) {
+	protected function processStatsDonor($foldingDonorId) {
 		$this->sendAction();
 		$replyMarkup = new Markup();
 
 		try {
-			$userStats = (new RequestUser($foldingUserId))->load();
+			$donorStats = (new RequestDonor($foldingDonorId))->load();
 		} catch (NotFoundException $exception) {
-			$this->reply(sprintf('%s User <b>%s</b> not found', Icons::ERROR, htmlentities($foldingUserId)), $replyMarkup);
+			$this->reply(sprintf('%s Donor <b>%s</b> not found', Icons::ERROR, htmlentities($foldingDonorId)), $replyMarkup);
 			return;
 		} catch (ApiErrorException $exception) {
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
 			return;
 		} catch (ApiTimeoutException $exception) {
 			$replyMarkup->inline_keyboard[] = [
-				$this->addDonorRefreshButton($foldingUserId)
+				$this->addDonorRefreshButton($foldingDonorId)
 			];
 			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
 			return;
@@ -106,13 +109,13 @@ abstract class Command
 			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatUserStats($userStats);
+		[$text, $buttons] = Folding::formatDonorStats($donorStats);
 
 		$replyMarkup->inline_keyboard[] = [
-			$this->addDonorRefreshButton($foldingUserId),
+			$this->addDonorRefreshButton($foldingDonorId),
 			[
 				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
-				'callback_data' => sprintf('/setnick %d %s', $userStats->id, base64_encode($userStats->name)),
+				'callback_data' => sprintf('/setnick %d %s', $donorStats->id, base64_encode($donorStats->name)),
 			]
 		];
 		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
@@ -122,7 +125,7 @@ abstract class Command
 	private function addDonorRefreshButton($foldingUserId) {
 		return [
 			'text' => sprintf('%s Refresh', Icons::REFRESH),
-			'callback_data' => sprintf('/stats %s', $foldingUserId),
+			'callback_data' => sprintf('%s %s', Command::CMD_DONOR, $foldingUserId),
 		];
 	}
 
@@ -130,7 +133,7 @@ abstract class Command
 		return [
 			[
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
-				'callback_data' => sprintf('/team %s', $foldingUserId),
+				'callback_data' => sprintf('%s %s', Command::CMD_DONOR, $foldingUserId),
 			],
 		];
 	}

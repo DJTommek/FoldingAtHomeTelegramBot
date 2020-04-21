@@ -8,7 +8,7 @@ use FoldingAtHome\Exceptions\ApiTimeoutException;
 use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
 use FoldingAtHome\RequestTeam;
-use FoldingAtHome\RequestUser;
+use FoldingAtHome\RequestDonor;
 use \Icons;
 use Tracy\Debugger;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
@@ -27,10 +27,9 @@ class TeamCommand extends Command
 	public function __construct($update, $tgLog, $loop, \User $user) {
 		parent::__construct($update, $tgLog, $loop, $user);
 
-		$command = '/team';
-
-		$exampleText = sprintf('%s 239186', $command) . PHP_EOL;
-		$exampleText .= sprintf('%s https://stats.foldingathome.org/team/239186', $command) . PHP_EOL;
+		$exampleFoldingTeamId = 239186;
+		$exampleText = sprintf('%s %d', Command::CMD_TEAM, $exampleFoldingTeamId) . PHP_EOL;
+		$exampleText .= sprintf('%s %s', Command::CMD_TEAM, Folding::getTeamUrl($exampleFoldingTeamId)) . PHP_EOL;
 
 		if (isset($this->params[0])) {
 			// parameter is URL with donor
