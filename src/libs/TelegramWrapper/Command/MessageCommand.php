@@ -44,8 +44,14 @@ class MessageCommand extends Command
 			$textTimezone = explode(' ', $this->update->message->text)[0];
 			foreach (Datetime::getTimezones() as $timezone) {
 				if (mb_strtolower($textTimezone) === mb_strtolower($timezone->getName())) {
-					$this->user->updateTimezone(new \DateTimeZone($textTimezone));
-					$this->reply(sprintf('Timezone set to <b>%s</b>.', $timezone->getName())); // @TODO some nicer text, also add buttons
+					$this->user->updateTimezone($timezone);
+					$nowInUserTimezone = new \DateTime('now', $timezone);
+					$this->reply(sprintf('%s Timezone was set to <b>%s</b>. Offset to UTC is <b>%s</b> so current datetime is <b>%s</b>.',
+						Icons::CHECKED,
+						$timezone->getName(),
+						$nowInUserTimezone->format('P'),
+						$nowInUserTimezone->format(DATETIME_FORMAT)
+					)); // @TODO some nicer text, also add buttons
 					return;
 				}
 			}
