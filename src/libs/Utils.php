@@ -14,7 +14,7 @@ class Utils
 
 	static function requestJson(string $url, int $timeout = FOLDING_STATS_TIMEOUT) {
 		try {
-			return json_decode(fileGetContent($url, [
+			return json_decode(fileGetContents($url, [
 				CURLOPT_CONNECTTIMEOUT => $timeout,
 				CURLOPT_TIMEOUT => $timeout,
 			]));
