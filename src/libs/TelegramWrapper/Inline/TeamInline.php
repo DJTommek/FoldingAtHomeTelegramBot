@@ -39,7 +39,7 @@ class TeamInline extends Inline
 			$this->flash(sprintf('%s Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR));
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatTeamStats($teamStats);
+		[$text, $buttons] = Folding::formatTeamStats($teamStats, $user->getTimezone());
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = [

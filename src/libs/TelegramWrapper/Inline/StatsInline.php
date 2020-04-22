@@ -42,7 +42,7 @@ class StatsInline extends Inline
 			$this->flash(sprintf('%s Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), true);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatDonorStats($userStats);
+		[$text, $buttons] = Folding::formatDonorStats($userStats, $user->getTimezone());
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = [

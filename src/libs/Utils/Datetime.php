@@ -74,4 +74,18 @@ class Datetime
 		}
 		return $result;
 	}
+
+	/**
+	 * Formatting offset in format "UTC+xx:yy", "UTC-xx:yy". If timezone is UTC, no offset is displayed, only text "UTC"
+	 *
+	 * @param \Datetime $datetime
+	 * @return string UTC+09:30, UTC-05:00 or UTC
+	 */
+	public static function formatTimezoneOffset(\Datetime $datetime) {
+		$offsetText = 'UTC';
+		if ($datetime->getOffset() !== 0) {
+			$offsetText .= $datetime->format('P');
+		}
+		return $offsetText;
+	}
 }

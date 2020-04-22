@@ -2,7 +2,6 @@
 
 namespace FoldingAtHome;
 
-use DateTime;
 use Exception;
 
 class Donor extends DonorAbstract
@@ -36,12 +35,12 @@ class Donor extends DonorAbstract
 	 * @param string $wusCert
 	 * @param string $creditCert
 	 * @param string $path
-	 * @param DateTime $last
+	 * @param \DateTime $last
 	 * @param string $name
 	 * @param DonorTeam[] $teams
 	 * @throws Exceptions\GeneralException
 	 */
-	public function __construct(int $id, int $wus, int $credit, int $rank, int $totalUsers, int $active7, int $active50, string $wusCert, string $creditCert, string $path, DateTime $last, string $name, array $teams) {
+	public function __construct(int $id, int $wus, int $credit, int $rank, int $totalUsers, int $active7, int $active50, string $wusCert, string $creditCert, string $path, \Datetime $last, string $name, array $teams) {
 		parent::__construct($id, $wus, $credit, $name, $rank);
 		foreach ($teams as $team) {
 			if ($team instanceof DonorTeam === false) {
@@ -67,7 +66,7 @@ class Donor extends DonorAbstract
 	 * @throws Exception
 	 */
 	public static function createFromJson($json) {
-		$last = new DateTime($json->last, new \DateTimeZone('UTC'));
+		$last = new \DateTime($json->last, new \DateTimeZone('UTC'));
 		$teams = [];
 		foreach ($json->teams as $team) {
 			$teams[] = DonorTeam::createFromJson($team);

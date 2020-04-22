@@ -109,7 +109,7 @@ abstract class Command
 			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatDonorStats($donorStats);
+		[$text, $buttons] = Folding::formatDonorStats($donorStats, $this->user->getTimezone());
 
 		$replyMarkup->inline_keyboard[] = [
 			$this->addDonorRefreshButton($foldingDonorId),
@@ -161,7 +161,7 @@ abstract class Command
 			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatTeamStats($teamStats);
+		[$text, $buttons] = Folding::formatTeamStats($teamStats, $this->user->getTimezone());
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = $this->addTeamRefreshButton($teamStats->id);
