@@ -133,7 +133,7 @@ abstract class Command
 		return [
 			[
 				'text' => sprintf('%s Refresh', Icons::REFRESH),
-				'callback_data' => sprintf('%s %s', Command::CMD_DONOR, $foldingUserId),
+				'callback_data' => sprintf('%s %s', Command::CMD_TEAM, $foldingUserId),
 			],
 		];
 	}
