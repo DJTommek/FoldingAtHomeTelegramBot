@@ -24,10 +24,9 @@ class SettingsTimezoneInline extends Inline
 
 		$replyMarkup = new Markup();
 
-		$userTimezone = $this->user->getSettings('timezone');
-		$text = sprintf('Currently set timezone: "%s"', $userTimezone) . PHP_EOL;
+		$userTimezone = $this->user->getTimezone();
+		$text = sprintf('Currently set timezone %s', $this->formatTimezone($userTimezone, true)) . PHP_EOL;
 
-		$text .= sprintf('Choose new region by clicking on button') . PHP_EOL;
 		$replyMarkup->inline_keyboard = [
 			[
 				[
@@ -38,18 +37,35 @@ class SettingsTimezoneInline extends Inline
 		];
 		// listing all timezone areas in specific continent
 		if (isset($this->params[0])) {
+			if ($this->params[0] === 'UTC') {
+				// @TODO special treatment if timezone is UTC, because it is only one in that continent group
+			}
 			$replyMarkup = new ReplyKeyboardMarkup();
 			$replyMarkup->one_time_keyboard = true;
 			$replyMarkup->keyboard = $this->getTimezonesButtons($this->params[0]);
+			// @TODO add button to request location and detect timezone by that
+			$text .= sprintf('Choose new timezone by selecting one below. All are in format:') . PHP_EOL;
+			$text .= sprintf('"Some/Timezone UTC offset %s current time"', Icons::CLOCK) . PHP_EOL;
 			$this->replyButton($text, $replyMarkup, false);
 		} else {
-			$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getGroupsButtons());
+			$text .= sprintf('Choose your region by clicking on button:') . PHP_EOL;
+			$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getContinentsButtons());
 			$this->replyButton($text, $replyMarkup);
 		}
-		$this->flash('Just ACK flash');
 	}
 
-	private function getGroupsButtons() {
+	private function formatTimezone(\DateTimeZone $timezone, bool $checked = false) {
+		$nowInTimezone = new \DateTime('now', $timezone);
+		return sprintf('%s%s UTC%s %s %s',
+			$timezone->getName(),
+			($checked ? ' ' . Icons::CHECKED : ''), // show icon only if $checked = true, otherwise show nothing.
+			$nowInTimezone->format('P'),
+			Icons::CLOCK,
+			$nowInTimezone->format(TIME_FORMAT)
+		);
+	}
+
+	private function getContinentsButtons() {
 		$inlineKeyboard = [];
 		$buttonRow = [];
 
@@ -60,7 +76,7 @@ class SettingsTimezoneInline extends Inline
 				$inlineKeyboard[] = $buttonRow;
 				$buttonRow = [];
 			}
-			if (mb_strpos($this->user->getSettings('timezone'), $timezoneContinent) === 0) {
+			if (mb_strpos($this->user->getSettings('timezone')->getName(), $timezoneContinent) === 0) {
 				$buttonText = sprintf('%s %s', Icons::CHECKED, $timezoneContinent);
 			} else {
 				$buttonText = $timezoneContinent;
@@ -84,16 +100,10 @@ class SettingsTimezoneInline extends Inline
 	 */
 	private function getTimezonesButtons(string $timezoneContinents) {
 		$inlineKeyboard = [];
-
-		$timezoneAreas = \Utils\Datetime::getTimezonesByContinent($timezoneContinents);
-
-		foreach ($timezoneAreas as $i => $timezoneArea) {
-			$buttonText = $timezoneArea->getName();
-			if ($this->user->getSettings('timezone') === $timezoneArea->getName()) {
-				$buttonText .= ' ' . Icons::CHECKED;
-			}
+		$timezones = \Utils\Datetime::getTimezonesByContinent($timezoneContinents);
+		foreach ($timezones as $i => $timezoneArea) {
 			$inlineKeyboard[] = [[
-				'text' => $buttonText,
+				'text' => $this->formatTimezone($timezoneArea, $this->user->getTimezone()->getName() === $timezoneArea->getName()),
 			]];
 		}
 		return $inlineKeyboard;

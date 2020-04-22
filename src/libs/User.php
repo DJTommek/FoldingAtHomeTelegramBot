@@ -30,7 +30,7 @@ class User
 		$this->foldingName = $userData['user_folding_name'];
 		$this->foldingTeamId = $userData['user_folding_team_id'];
 		$this->foldingTeamName = $userData['user_folding_team_name'];
-		$this->settings['timezone'] = $userData['user_settings_timezone'];
+		$this->settings['timezone'] = new \DateTimeZone($userData['user_settings_timezone']);
 	}
 
 	public function register(int $telegramId, ?string $telegramUsername = null) {
@@ -144,6 +144,13 @@ class User
 	 */
 	public function getFoldingTeamName() {
 		return $this->foldingTeamName;
+	}
+
+	/**
+	 * @return \DateTimeZone
+	 */
+	public function getTimezone() {
+		return $this->settings['timezone'];
 	}
 
 	/**

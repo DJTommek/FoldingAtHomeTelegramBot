@@ -14,14 +14,14 @@ class SettingsInline extends Inline
 
 		$replyMarkup = new Markup();
 
-		$userTimezone = $this->user->getSettings('timezone');
+		$userTimezone = $this->user->getTimezone();
 		$text = sprintf('<b>Settings</b>') . PHP_EOL;
 		$text .= sprintf('Choose which settings via buttons below:') . PHP_EOL;
 
 		$replyMarkup->inline_keyboard = [
 			[ // row of buttons
 				[ // button
-					'text' => sprintf('Timezone: %s', $userTimezone),
+					'text' => sprintf('Timezone: %s', $userTimezone->getName()),
 					'callback_data' => sprintf('/settings-timezone'),
 				],
 			],
