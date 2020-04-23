@@ -39,15 +39,29 @@ class SettingsTimezoneInline extends Inline
 		// listing all timezone areas in specific continent
 		if (isset($this->params[0])) {
 			if ($this->params[0] === 'UTC') {
-				// @TODO special treatment if timezone is UTC, because it is only one in that continent group
+				$timezone = new \DateTimeZone('UTC');
+				$nowInUserTimezone = new \DateTime('now', $timezone);
+				$this->user->updateTimezone($timezone); // @TODO remove this hacky reloading user to show correctly selected UTC
+				$text .= sprintf('Choose your region by clicking on button:') . PHP_EOL;
+				$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getContinentsButtons());
+				$this->replyButton($text, $replyMarkup);
+				$this->flash(sprintf('%s Timezone was set to %s.%sOffset to UTC is %s so current datetime is %s.',
+					Icons::CHECKED,
+					$timezone->getName(),
+					PHP_EOL,
+					$nowInUserTimezone->format('P'),
+					$nowInUserTimezone->format(DATETIME_FORMAT)
+				), true);
+			} else {
+				$replyMarkup = new ReplyKeyboardMarkup();
+				$replyMarkup->one_time_keyboard = true;
+				$replyMarkup->keyboard = $this->getTimezonesButtons($this->params[0]);
+				// @TODO add button to request location and detect timezone by that
+				$text .= sprintf('Choose new timezone by selecting one below or simply close keyboard. All buttons are in format:') . PHP_EOL;
+				$text .= sprintf('"Some/Timezone UTC offset %s current time"', Icons::CLOCK) . PHP_EOL;
+				$this->replyButton($text, $replyMarkup, false);
+				$this->flash('Click on one of timezones:');
 			}
-			$replyMarkup = new ReplyKeyboardMarkup();
-			$replyMarkup->one_time_keyboard = true;
-			$replyMarkup->keyboard = $this->getTimezonesButtons($this->params[0]);
-			// @TODO add button to request location and detect timezone by that
-			$text .= sprintf('Choose new timezone by selecting one below. All are in format:') . PHP_EOL;
-			$text .= sprintf('"Some/Timezone UTC offset %s current time"', Icons::CLOCK) . PHP_EOL;
-			$this->replyButton($text, $replyMarkup, false);
 		} else {
 			$text .= sprintf('Choose your region by clicking on button:') . PHP_EOL;
 			$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getContinentsButtons());

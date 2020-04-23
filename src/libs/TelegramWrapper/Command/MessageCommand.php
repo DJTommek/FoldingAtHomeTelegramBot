@@ -5,6 +5,7 @@ namespace TelegramWrapper\Command;
 use \Folding;
 use \Icons;
 use Tracy\Debugger;
+use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 use Utils\Datetime;
 
 class MessageCommand extends Command
@@ -46,12 +47,23 @@ class MessageCommand extends Command
 				if (mb_strtolower($textTimezone) === mb_strtolower($timezone->getName())) {
 					$this->user->updateTimezone($timezone);
 					$nowInUserTimezone = new \DateTime('now', $timezone);
+
+					$replyMarkup = new Markup();
+					$replyMarkup->inline_keyboard = [
+						[
+							[
+								'text' => sprintf('Settings'),
+								'callback_data' => sprintf(Command::CMD_SETTINGS),
+							],
+						]
+					];
+
 					$this->reply(sprintf('%s Timezone was set to <b>%s</b>. Offset to UTC is <b>%s</b> so current datetime is <b>%s</b>.',
 						Icons::CHECKED,
 						$timezone->getName(),
 						$nowInUserTimezone->format('P'),
 						$nowInUserTimezone->format(DATETIME_FORMAT)
-					)); // @TODO some nicer text, also add buttons
+					), $replyMarkup); // @TODO some nicer text, also add buttons
 					return;
 				}
 			}

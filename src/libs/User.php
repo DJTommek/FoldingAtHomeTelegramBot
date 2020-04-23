@@ -20,17 +20,22 @@ class User
 	 * @param string|null $telegramUsername
 	 */
 	public function __construct(int $telegramId, ?string $telegramUsername = null) {
+		$this->telegramId = $telegramId;
+		$this->telegramUsername = $telegramUsername;
 		$this->db = Factory::get_database();
 		$userData = $this->register($telegramId, $telegramUsername);
+		$this->updateCachedData($userData);
+	}
 
-		$this->id = $userData['user_id'];
-		$this->telegramId = $userData['user_telegram_id'];
-		$this->telegramUsername = $userData['user_telegram_name'];
-		$this->foldingId = $userData['user_folding_id'];
-		$this->foldingName = $userData['user_folding_name'];
-		$this->foldingTeamId = $userData['user_folding_team_id'];
-		$this->foldingTeamName = $userData['user_folding_team_name'];
-		$this->settings['timezone'] = new \DateTimeZone($userData['user_settings_timezone']);
+	private function updateCachedData($newUserData) {
+		$this->id = $newUserData['user_id'];
+		$this->telegramId = $newUserData['user_telegram_id'];
+		$this->telegramUsername = $newUserData['user_telegram_name'];
+		$this->foldingId = $newUserData['user_folding_id'];
+		$this->foldingName = $newUserData['user_folding_name'];
+		$this->foldingTeamId = $newUserData['user_folding_team_id'];
+		$this->foldingTeamName = $newUserData['user_folding_team_name'];
+		$this->settings['timezone'] = new \DateTimeZone($newUserData['user_settings_timezone']);
 	}
 
 	public function register(int $telegramId, ?string $telegramUsername = null) {
@@ -38,11 +43,11 @@ class User
 			ON DUPLICATE KEY UPDATE user_telegram_name = ?, user_last_update = NOW()',
 			$telegramId, $telegramUsername, $telegramUsername ?? \FoldingAtHome\DonorAbstract::DEFAULT_NAME, $telegramUsername
 		);
-		return $this->load($telegramId);
+		return $this->load();
 	}
 
-	public function load(int $telegramId) {
-		return $this->db->query('SELECT * FROM fahtb_user WHERE user_telegram_id = ?', $telegramId)->fetchAll()[0];
+	public function load() {
+		return $this->db->query('SELECT * FROM fahtb_user WHERE user_telegram_id = ?', $this->telegramId)->fetchAll()[0];
 	}
 
 	public function updateTeam(int $foldingTeamId, string $foldingTeamName) {
@@ -85,8 +90,11 @@ class User
 
 			$params[] = $this->telegramId;
 			call_user_func_array([$this->db, 'query'], array_merge([$query], $params));
+			$newData = $this->load();
+			$this->updateCachedData($newData);
+		} else {
+			return $this->get();
 		}
-		return $this->get();
 	}
 
 	public function getUrl() {
