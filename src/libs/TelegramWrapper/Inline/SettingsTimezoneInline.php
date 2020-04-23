@@ -41,7 +41,7 @@ class SettingsTimezoneInline extends Inline
 			if ($this->params[0] === 'UTC') {
 				$timezone = new \DateTimeZone('UTC');
 				$nowInUserTimezone = new \DateTime('now', $timezone);
-				$this->user->updateTimezone($timezone); // @TODO remove this hacky reloading user to show correctly selected UTC
+				$this->user->updateTimezone($timezone);
 				$text .= sprintf('Choose your region by clicking on button:') . PHP_EOL;
 				$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $this->getContinentsButtons());
 				$this->replyButton($text, $replyMarkup);
