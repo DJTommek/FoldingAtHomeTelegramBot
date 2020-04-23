@@ -15,12 +15,12 @@ class SetTeamInline extends Inline
 		$foldingTeamName = base64_decode($this->params[1]);
 
 		if ($user->getFoldingTeamId() === $foldingTeamId) {
-			$this->flash(sprintf('%s Team "%s" is already your default, you can use command "%s" without parameter.', Icons::INFO, Command::CMD_TEAM, $user->getFoldingTeamName()), true);
+			$this->flash(sprintf('%s Team "%s" is already your default, you can use command "%s" without parameter.', Icons::INFO, htmlentities($user->getFoldingTeamName()), Command::CMD_TEAM), true);
 			return;
 		}
 
 		$user->updateTeam($foldingTeamId, $foldingTeamName);
-		$msg = sprintf('%s Team "%s" was set as default, now you can use command "%s" without parameter.', Icons::SUCCESS, Command::CMD_TEAM, htmlentities($foldingTeamName));
+		$msg = sprintf('%s Team "%s" was set as default, now you can use command "%s" without parameter.', Icons::SUCCESS, htmlentities($foldingTeamName), Command::CMD_TEAM);
 		$this->flash($msg, true);
 	}
 }

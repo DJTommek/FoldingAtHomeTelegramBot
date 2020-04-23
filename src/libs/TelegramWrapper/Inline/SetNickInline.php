@@ -16,7 +16,7 @@ class SetNickInline extends Inline
 		$foldingUserName = base64_decode($this->params[1]);
 
 		if ($user->getFoldingId() === $foldingUserId) {
-			$this->flash(sprintf('%s Nick "%s" is already your default, you can use command "%s" without parameter.', Icons::INFO, $user->getFoldingName(), Command::CMD_DONOR), true);
+			$this->flash(sprintf('%s Nick "%s" is already your default, you can use command "%s" without parameter.', Icons::INFO, htmlentities($user->getFoldingName()), Command::CMD_DONOR), true);
 			return;
 		}
 
