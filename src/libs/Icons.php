@@ -9,7 +9,9 @@ class Icons
 	const ERROR = "\u{26D4}"; // https://emojipedia.org/no-entry/
 	const WARNING = "\u{26A0}"; // https://emojipedia.org/warning/
 	const SUCCESS = "\u{2705}"; // https://emojipedia.org/check-mark-button/
+	const CHECKED = "\u{2705}"; // https://emojipedia.org/check-mark-button/
 	const INFO = "\u{2139}"; // https://emojipedia.org/information/
+	const BACK = "\u{1F519}"; // https://emojipedia.org/back-arrow/
 
 	const DONOR = "\u{1F44D}"; // https://emojipedia.org/thumbs-up/
 	const TEAM = "\u{1F590}"; // https://emojipedia.org/hand-with-fingers-splayed/
@@ -19,6 +21,7 @@ class Icons
 	const STATS_WU_LAST_DONE = "\u{23F3}"; // https://emojipedia.org/hourglass-not-done/
 	const STATS_ACTIVE_CLIENTS = "\u{1F3C3}"; // https://emojipedia.org/person-running/
 	const STATS_TEAM_TOP = "\u{1F3C6}"; // https://emojipedia.org/trophy/
+	const CLOCK = "\u{1F559}"; // https://emojipedia.org/ten-oclock/
 
 	const MEDAL1 = "\u{1F947}"; // https://emojipedia.org/1st-place-medal/
 	const MEDAL2 = "\u{1F948}"; // https://emojipedia.org/2nd-place-medal/

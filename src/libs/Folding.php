@@ -20,8 +20,11 @@ class Folding
 		return $baseUrl;
 	}
 
-	public static function formatDonorStats(\FoldingAtHome\Donor $stats) {
+	public static function formatDonorStats(\FoldingAtHome\Donor $stats, ?\DateTimeZone $timezone = null) {
 		$buttons = [];
+		if (is_null($timezone)) {
+			$timezone = new DateTimeZone('UTC');
+		}
 
 		$message = sprintf('%s\'s folding stats from %s:', Folding::formatDonorLink($stats->name), TELEGRAM_BOT_NICK) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s donors)',
@@ -37,8 +40,10 @@ class Folding
 				$stats->wusCert . '&cachebuster=' . $stats->last->getTimestamp() // @TODO cachebuster should be last WU done or "today", depending what is newer
 			) . PHP_EOL;
 		//		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
-		$message .= sprintf('%s <b>Last WU done</b>: %s',
-				Icons::STATS_WU_LAST_DONE, $stats->last->format(DATE_FORMAT . ' ' . TIME_FORMAT)
+		$message .= sprintf('%s <b>Last WU done</b>: %s %s',
+				Icons::STATS_WU_LAST_DONE,
+				$stats->last->setTimezone($timezone)->format(DATETIME_FORMAT),
+				\Utils\Datetime::formatTimezoneOffset($stats->last)
 			) . PHP_EOL;
 		$message .= sprintf('%s‍ <b>Active client(s)</b>: %s / %s (last week / 50 days)',
 				Icons::STATS_ACTIVE_CLIENTS,
@@ -54,13 +59,19 @@ class Folding
 		}
 		$message .= PHP_EOL;
 
-		$message .= sprintf('Loaded %s UTC',
-				gmdate(DATE_FORMAT . ' ' . TIME_FORMAT)
+		$now = (new DateTime())->setTimezone($timezone);
+		$message .= sprintf('Loaded %s %s',
+				$now->format(DATETIME_FORMAT),
+				\Utils\Datetime::formatTimezoneOffset($now)
 			) . PHP_EOL;
 		return [$message, $buttons];
 	}
 
-	public static function formatTeamStats(\FoldingAtHome\Team $stats) {
+	public static function formatTeamStats(\FoldingAtHome\Team $stats, ?\DateTimeZone $timezone = null) {
+		$buttons = [];
+		if (is_null($timezone)) {
+			$timezone = new DateTimeZone('UTC');
+		}
 		$buttons = [];
 		$message = sprintf('<a href="%s">%s</a>\'s team folding stats from %s:', self::getTeamUrl($stats->id), $stats->name, TELEGRAM_BOT_NICK) . PHP_EOL;
 		$message .= sprintf('%s <b>Credit</b>: %s (%s %s of %s teams, %s %s / donor)',
@@ -80,7 +91,11 @@ class Folding
 				$stats->wusCert . '&cachebuster=' . $stats->last->getTimestamp()
 			) . PHP_EOL;
 //		$lastWUDone = new \DateTime($stats->last); // @TODO add "ago". Note: datetime is probably UTC+0, not sure how about summer time
-		$message .= sprintf('%s <b>Last WU done</b>: %s', Icons::STATS_WU_LAST_DONE, $stats->last->format(DATE_FORMAT . ' ' . TIME_FORMAT)) . PHP_EOL;
+		$message .= sprintf('%s <b>Last WU done</b>: %s %s',
+				Icons::STATS_WU_LAST_DONE,
+				$stats->last->setTimezone($timezone)->format(DATETIME_FORMAT),
+				\Utils\Datetime::formatTimezoneOffset($stats->last)
+			) . PHP_EOL;
 		$message .= sprintf('%s‍ <b>Active client(s)</b>: %s (last 50 days, %s %s / donor)',
 				Icons::STATS_ACTIVE_CLIENTS,
 				Utils::numberFormat($stats->active50),
@@ -96,8 +111,10 @@ class Folding
 		}
 		$message .= PHP_EOL;
 
-		$message .= sprintf('Loaded %s UTC',
-				gmdate(DATE_FORMAT . ' ' . TIME_FORMAT)
+		$now = (new DateTime())->setTimezone($timezone);
+		$message .= sprintf('Loaded %s %s',
+				$now->format(DATETIME_FORMAT),
+				\Utils\Datetime::formatTimezoneOffset($now)
 			) . PHP_EOL;
 		return [$message, $buttons];
 	}

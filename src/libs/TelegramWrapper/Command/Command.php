@@ -32,6 +32,8 @@ abstract class Command
 
 	const CMD_DONOR = '/donor';
 	const CMD_TEAM = '/team';
+	const CMD_SETTINGS = '/settings';
+	const CMD_SETTINGS_TIMEZONE = '/settings-timezone';
 
 	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop, \User $user) {
 		$this->update = $update;
@@ -109,7 +111,7 @@ abstract class Command
 			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatDonorStats($donorStats);
+		[$text, $buttons] = Folding::formatDonorStats($donorStats, $this->user->getTimezone());
 
 		$replyMarkup->inline_keyboard[] = [
 			$this->addDonorRefreshButton($foldingDonorId),
@@ -161,7 +163,7 @@ abstract class Command
 			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
 			throw $exception;
 		}
-		[$text, $buttons] = Folding::formatTeamStats($teamStats);
+		[$text, $buttons] = Folding::formatTeamStats($teamStats, $this->user->getTimezone());
 
 		$replyMarkup = new Markup();
 		$replyMarkup->inline_keyboard[] = $this->addTeamRefreshButton($teamStats->id);

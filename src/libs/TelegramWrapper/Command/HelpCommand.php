@@ -28,6 +28,14 @@ class HelpCommand extends Command
 		$text .= sprintf('%s <b>Warning</b>: Website API is often very slow so be patient. Bot has automatic timeout set to %d seconds, then it will reply with sorry message. In few seconds try again and response should be quick.',
 				Icons::WARNING, FOLDING_STATS_TIMEOUT) . PHP_EOL;
 
-		$this->reply($text);
+		$replyMarkup = new Markup();
+		$replyMarkup->inline_keyboard[] = [
+			[
+				'text' => sprintf('Settings'),
+				'callback_data' => sprintf(self::CMD_SETTINGS),
+			],
+		];
+
+		$this->reply($text, $replyMarkup);
 	}
 }

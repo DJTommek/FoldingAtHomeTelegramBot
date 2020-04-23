@@ -4,6 +4,9 @@ namespace TelegramWrapper\Command;
 
 use \Folding;
 use \Icons;
+use Tracy\Debugger;
+use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
+use Utils\Datetime;
 
 class MessageCommand extends Command
 {
@@ -28,6 +31,7 @@ class MessageCommand extends Command
 
 	/**
 	 * @throws \FoldingAtHome\Exceptions\GeneralException
+	 * @throws \Exception
 	 */
 	private function runPM() {
 		if (mb_strpos($this->update->message->text, Folding::getDonorUrl('')) === 0) {
@@ -37,6 +41,32 @@ class MessageCommand extends Command
 			$foldingTeamId = htmlentities(str_replace(Folding::getTeamUrl(''), '', $this->update->message->text));
 			$this->processStatsTeam($foldingTeamId);
 		} else {
+			// timezone settings
+			$textTimezone = explode(' ', $this->update->message->text)[0];
+			foreach (Datetime::getTimezones() as $timezone) {
+				if (mb_strtolower($textTimezone) === mb_strtolower($timezone->getName())) {
+					$this->user->updateTimezone($timezone);
+					$nowInUserTimezone = new \DateTime('now', $timezone);
+
+					$replyMarkup = new Markup();
+					$replyMarkup->inline_keyboard = [
+						[
+							[
+								'text' => sprintf('Settings'),
+								'callback_data' => sprintf(Command::CMD_SETTINGS),
+							],
+						]
+					];
+
+					$this->reply(sprintf('%s Timezone was set to <b>%s</b>. Offset to UTC is <b>%s</b> so current datetime is <b>%s</b>.',
+						Icons::CHECKED,
+						$timezone->getName(),
+						$nowInUserTimezone->format('P'),
+						$nowInUserTimezone->format(DATETIME_FORMAT)
+					), $replyMarkup); // @TODO some nicer text, also add buttons
+					return;
+				}
+			}
 			$text = sprintf('%s Welcome to %s!', Icons::FOLDING, TELEGRAM_BOT_NICK) . PHP_EOL;
 			$text .= sprintf('Check /help to get more info about bot.') . PHP_EOL;
 			$this->reply($text);

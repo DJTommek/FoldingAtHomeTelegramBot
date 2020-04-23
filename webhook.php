@@ -48,6 +48,12 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/setteam':
 			new \TelegramWrapper\Inline\SetTeamInline($update, $tgLog, $loop, $user);
 			break;
+		case \TelegramWrapper\Command\Command::CMD_SETTINGS:
+			new \TelegramWrapper\Inline\SettingsInline($update, $tgLog, $loop, $user);
+			break;
+		case \TelegramWrapper\Command\Command::CMD_SETTINGS_TIMEZONE:
+			new \TelegramWrapper\Inline\SettingsTimezoneInline($update, $tgLog, $loop, $user);
+			break;
 		default: // unknown
 			// @TODO log error, this should not happen. Edit: can happen if some command is no longer used (for example /stats was changed to /donor)
 			break;
@@ -63,6 +69,9 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 			break;
 		case '/help':
 			new \TelegramWrapper\Command\HelpCommand($update, $tgLog, $loop, $user);
+			break;
+		case \TelegramWrapper\Command\Command::CMD_SETTINGS:
+			new \TelegramWrapper\Command\SettingsCommand($update, $tgLog, $loop, $user);
 			break;
 		case '/stats':
 			new \TelegramWrapper\Command\StatsCommand($update, $tgLog, $loop, $user);
