@@ -4,6 +4,7 @@ namespace TelegramWrapper\Inline;
 
 use \Folding;
 use \Icons;
+use TelegramWrapper\Command\Command;
 use Tracy\Debugger;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 use unreal4u\TelegramAPI\Telegram\Types\ReplyKeyboardMarkup;
@@ -31,7 +32,7 @@ class SettingsTimezoneInline extends Inline
 			[
 				[
 					'text' => sprintf('%s Settings', Icons::BACK),
-					'callback_data' => sprintf('/settings'),
+					'callback_data' => sprintf(Command::CMD_SETTINGS),
 				],
 			]
 		];
@@ -83,7 +84,7 @@ class SettingsTimezoneInline extends Inline
 			}
 			$buttonRow[] = [
 				'text' => $buttonText,
-				'callback_data' => sprintf('/settings-timezone %s', $timezoneContinent),
+				'callback_data' => sprintf('%s %s', Command::CMD_SETTINGS_TIMEZONE, $timezoneContinent),
 			];
 //			$this->reply(sprintf('Choose subzone from zone "%s": %s', $timezoneContinent, join(', ', \Utils\Datetime::getTZSubzone($timezoneContinent))));
 		}

@@ -17,7 +17,7 @@ class SettingsCommand extends Command
 		$replyMarkup->inline_keyboard[] = [
 			[
 				'text' => sprintf('Settings'),
-				'callback_data' => sprintf('/settings'),
+				'callback_data' => sprintf(self::CMD_SETTINGS),
 			],
 		];
 

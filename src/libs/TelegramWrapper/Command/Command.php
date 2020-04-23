@@ -32,6 +32,8 @@ abstract class Command
 
 	const CMD_DONOR = '/donor';
 	const CMD_TEAM = '/team';
+	const CMD_SETTINGS = '/settings';
+	const CMD_SETTINGS_TIMEZONE = '/settings-timezone';
 
 	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop, \User $user) {
 		$this->update = $update;

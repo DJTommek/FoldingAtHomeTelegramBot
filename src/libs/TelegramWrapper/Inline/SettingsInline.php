@@ -4,6 +4,7 @@ namespace TelegramWrapper\Inline;
 
 use \Folding;
 use \Icons;
+use TelegramWrapper\Command\Command;
 use Tracy\Debugger;
 use unreal4u\TelegramAPI\Telegram\Types\Inline\Keyboard\Markup;
 
@@ -22,7 +23,7 @@ class SettingsInline extends Inline
 			[ // row of buttons
 				[ // button
 					'text' => sprintf('Timezone: %s', $userTimezone->getName()),
-					'callback_data' => sprintf('/settings-timezone'),
+					'callback_data' => sprintf(Command::CMD_SETTINGS_TIMEZONE),
 				],
 			],
 		];

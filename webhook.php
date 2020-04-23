@@ -48,10 +48,10 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/setteam':
 			new \TelegramWrapper\Inline\SetTeamInline($update, $tgLog, $loop, $user);
 			break;
-		case '/settings':
+		case \TelegramWrapper\Command\Command::CMD_SETTINGS:
 			new \TelegramWrapper\Inline\SettingsInline($update, $tgLog, $loop, $user);
 			break;
-		case '/settings-timezone':
+		case \TelegramWrapper\Command\Command::CMD_SETTINGS_TIMEZONE:
 			new \TelegramWrapper\Inline\SettingsTimezoneInline($update, $tgLog, $loop, $user);
 			break;
 		default: // unknown
@@ -70,7 +70,7 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case '/help':
 			new \TelegramWrapper\Command\HelpCommand($update, $tgLog, $loop, $user);
 			break;
-		case '/settings':
+		case \TelegramWrapper\Command\Command::CMD_SETTINGS:
 			new \TelegramWrapper\Command\SettingsCommand($update, $tgLog, $loop, $user);
 			break;
 		case '/stats':
