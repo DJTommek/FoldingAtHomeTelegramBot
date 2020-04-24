@@ -133,7 +133,7 @@ class Folding
 			return [null, null];
 		}
 		$buttons = [];
-		$message = sprintf('%s <b>%d team(s)</b>:', Icons::STATS_TEAM_TOP, $showing) . PHP_EOL;
+		$message = sprintf('%s <b>%d team(s) of %d total</b>:', Icons::STATS_TEAM_TOP, $showing, count($donorStats->teams)) . PHP_EOL;
 		foreach ($donorStats->teams as $i => $team) {
 			if ($i >= $showing) {
 				break;
