@@ -33,4 +33,9 @@ foreach ($statuses as $statusName => $statusText) {
 	printf('<li><b>%s</b>: %s</li>', $statusName, $statusText);
 }
 
+$a = new \FoldingAtHome\RequestOS();
+$b = $a->load();
+dump($b);
+
+
 
