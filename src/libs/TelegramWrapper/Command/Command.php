@@ -8,6 +8,7 @@ use FoldingAtHome\Exceptions\ApiErrorException;
 use FoldingAtHome\Exceptions\ApiTimeoutException;
 use FoldingAtHome\Exceptions\GeneralException;
 use FoldingAtHome\Exceptions\NotFoundException;
+use FoldingAtHome\RequestOS;
 use FoldingAtHome\RequestTeam;
 use FoldingAtHome\RequestDonor;
 use Icons;
@@ -34,6 +35,7 @@ abstract class Command
 	const CMD_TEAM = '/team';
 	const CMD_SETTINGS = '/settings';
 	const CMD_SETTINGS_TIMEZONE = '/settings-timezone';
+	const CMD_OS_STATS = '/os';
 
 	public function __construct(Update $update, TgLog $tgLog, StreamSelectLoop $loop, \User $user) {
 		$this->update = $update;
@@ -119,6 +121,39 @@ abstract class Command
 				'text' => sprintf('%s Set donor as default', Icons::DEFAULT),
 				'callback_data' => sprintf('/setnick %d %s', $donorStats->id, base64_encode($donorStats->name)),
 			]
+		];
+		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
+		$this->reply($text, $replyMarkup);
+	}
+
+	protected function processStatsOS() {
+		$this->sendAction();
+		$replyMarkup = new Markup();
+
+		try {
+			$OSStats = (new RequestOS())->load();
+		} catch (ApiErrorException $exception) {
+			$this->reply(sprintf('%s <b>Error</b>: Folding@home API responded with error <b>%s</b>', Icons::ERROR, htmlentities($exception->getMessage())), $replyMarkup);
+			return;
+		} catch (ApiTimeoutException $exception) {
+			// @TODO add refresh button
+//			$replyMarkup->inline_keyboard[] = [
+//				$this->addDonorRefreshButton($foldingDonorId)
+//			];
+			$this->reply(sprintf('%s <b>Error</b>: Folding@home API is not responding, try again later.', Icons::ERROR), $replyMarkup);
+			return;
+		} catch (GeneralException $exception) {
+			$this->reply(sprintf('%s <b>Error</b>: Unhandled Folding@home error occured, error was saved and admin was notified.', Icons::ERROR), $replyMarkup);
+			throw $exception;
+		}
+		[$text, $buttons] = Folding::formatOSStats($OSStats, $this->user->getTimezone());
+
+		$replyMarkup->inline_keyboard[] = [
+			// @TODO add refresh button
+//			$replyMarkup->inline_keyboard[] = [
+//				$this->addDonorRefreshButton($foldingDonorId)
+//			];
+//			$this->addDonorRefreshButton($foldingDonorId),
 		];
 		$replyMarkup->inline_keyboard = array_merge($replyMarkup->inline_keyboard, $buttons);
 		$this->reply($text, $replyMarkup);

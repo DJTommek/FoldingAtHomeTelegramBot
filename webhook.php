@@ -82,6 +82,9 @@ if (TelegramWrapper\Telegram::isButtonClick($update)) {
 		case \TelegramWrapper\Command\Command::CMD_TEAM:
 			new \TelegramWrapper\Command\TeamCommand($update, $tgLog, $loop, $user);
 			break;
+		case \TelegramWrapper\Command\Command::CMD_OS_STATS:
+			new \TelegramWrapper\Command\OSStatsCommand($update, $tgLog, $loop, $user);
+			break;
 		case null: // message without command
 			new \TelegramWrapper\Command\MessageCommand($update, $tgLog, $loop, $user);
 			break;

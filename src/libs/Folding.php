@@ -67,6 +67,34 @@ class Folding
 		return [$message, $buttons];
 	}
 
+	/**
+	 * @param \FoldingAtHome\OSStats[] $OSStats
+	 * @param DateTimeZone|null $timezone
+	 * @return array
+	 */
+	public static function formatOSStats(array $OSStats, ?\DateTimeZone $timezone = null) {
+		$buttons = [];
+		if (is_null($timezone)) {
+			$timezone = new DateTimeZone('UTC');
+		}
+
+		$message = sprintf('OS statistics stats from %s:', TELEGRAM_BOT_NICK) . PHP_EOL;
+
+		foreach ($OSStats as $stat) {
+//			$message .= sprintf('<b>%s</b>: %d | %d | %d | %d | %d | %d |', $stat->os, $stat->AMDGPUs, $stat->NVidiaGPUs, $stat->CPUs, $stat->CPUCores, $stat->TFLOPS, $stat->TFLOPSx86) . PHP_EOL;
+			$message .= sprintf('%s <b>%s</b>', Icons::FOLDING, $stat->os) . PHP_EOL;
+			$message .= sprintf('<b>AMD GPUs</b>: %s', Utils::numberFormat($stat->AMDGPUs)) . PHP_EOL;
+			$message .= sprintf('<b>NVidia GPUs</b>: %s', Utils::numberFormat($stat->NVIDIAGPUs)) . PHP_EOL;
+			$message .= sprintf('<b>CPUs</b>: %s', Utils::numberFormat($stat->CPUs)) . PHP_EOL;
+			$message .= sprintf('<b>CPU cores</b>: %s', Utils::numberFormat($stat->CPUCores)) . PHP_EOL;
+			$message .= sprintf('<b>TFLOPS</b>: %s', Utils::numberFormat($stat->TFLOPS)) . PHP_EOL;
+			$message .= sprintf('<b>x86 TFLOPS</b>: %s', Utils::numberFormat($stat->TFLOPSx86)) . PHP_EOL;
+			$message .= PHP_EOL;
+		}
+
+		return [$message, $buttons];
+	}
+
 	public static function formatTeamStats(\FoldingAtHome\Team $stats, ?\DateTimeZone $timezone = null) {
 		$buttons = [];
 		if (is_null($timezone)) {
